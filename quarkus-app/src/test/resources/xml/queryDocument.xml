@@ -1,0 +1,19 @@
+<?xml version="1.0" ?>
+<epcisq:EPCISQueryDocument xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:epcisq="urn:epcglobal:epcis-query:xsd:2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                           schemaVersion="1" creationDate="2023-02-03T10:33:03.505Z">
+    <EPCISBody>
+        <epcisq:Poll>
+            <queryName>SimpleEventQuery</queryName>
+            <params>
+                <param>
+                    <name>GE_eventTime</name>
+                    <value xsi:type="xs:dateTime">2022-09-30T22:00:00Z</value>
+                </param>
+                <param>
+                    <name>LT_eventTime</name>
+                    <value xsi:type="xs:dateTime">2022-12-30T23:00:00Z</value>
+                </param>
+            </params>
+        </epcisq:Poll>
+    </EPCISBody>
+</epcisq:EPCISQueryDocument>

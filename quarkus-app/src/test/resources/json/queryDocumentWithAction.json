@@ -1,0 +1,5 @@
+{
+  "@context": "https://ref.gs1.org/standards/epcis/2.0.0/query-schema.json",
+  "eventType": ["ObjectEvent"],
+  "EQ_action": ["ADD"]
+}

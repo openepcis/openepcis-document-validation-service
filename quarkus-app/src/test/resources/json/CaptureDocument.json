@@ -1,0 +1,48 @@
+{
+  "@context": [
+    "https://ref.gs1.org/standards/epcis/2.0.0/epcis-context.jsonld"
+  ],
+  "type": "EPCISDocument",
+  "schemaVersion": "2.0",
+  "creationDate": "2005-07-11T11:30:47.0Z",
+  "epcisBody": {
+    "eventList": [
+      {
+        "type": "ObjectEvent",
+        "eventTime": "2005-04-03T20:33:31.116-06:00",
+        "eventTimeZoneOffset": "-06:00",
+        "epcList": [
+          "urn:epc:id:sgtin:0614141.107346.2017",
+          "urn:epc:id:sgtin:0614141.107346.2018"
+        ],
+        "bizStep": "shipping",
+        "disposition": "in_transit",
+        "readPoint": {
+          "id": "urn:epc:id:sgln:0614141.07346.1234"
+        },
+        "bizTransactionList": [
+          {
+            "type": "po",
+            "bizTransaction": "http://transaction.acme.com/po/12345678"
+          }
+        ]
+      },
+      {
+        "type": "ObjectEvent",
+        "eventTime": "2005-04-03T20:33:31.116-06:00",
+        "bizStep": "commissioning",
+        "disposition": "in_transit",
+        "readPoint": {
+          "id": "urn:epc:id:sgln:0614141.07346.1234"
+        },
+        "quantityList": [
+          {
+            "epcClass": "urn:epc:class:lgtin:4023333.002000.2019-10-07",
+            "quantity": 150,
+            "uom": "KGM"
+          }
+        ]
+      }
+    ]
+  }
+}

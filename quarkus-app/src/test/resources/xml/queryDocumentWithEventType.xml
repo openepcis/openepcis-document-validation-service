@@ -1,0 +1,23 @@
+<?xml version="1.0" ?>
+<epcisq:EPCISQueryDocument xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:epcisq="urn:epcglobal:epcis-query:xsd:2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                           schemaVersion="1" creationDate="2023-02-03T10:18:31.220Z">
+    <EPCISBody>
+        <epcisq:Poll>
+            <queryName>SimpleEventQuery</queryName>
+            <params>
+                <param>
+                    <name>eventType</name>
+                    <value xsi:type="epcisq:ArrayOfString">
+                        <string>ObjectEvent</string>
+                    </value>
+                </param>
+                <param>
+                    <name>EQ_action</name>
+                    <value xsi:type="epcisq:ArrayOfString">
+                        <string>ADD</string>
+                    </value>
+                </param>
+            </params>
+        </epcisq:Poll>
+    </EPCISBody>
+</epcisq:EPCISQueryDocument>
