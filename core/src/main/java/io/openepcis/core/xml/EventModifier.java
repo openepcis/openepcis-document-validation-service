@@ -37,26 +37,27 @@ public class EventModifier {
   public EventModifier() {
     this(Executors.newWorkStealingPool());
   }
-
   public InputStream modifyEvent(final InputStream captureInput) {
-    try (PipedOutputStream pipedOutputStream = new PipedOutputStream()) {
+    try {
       final byte[] preScan = new byte[64];
       final int len = captureInput.read(preScan);
       final String preScanType = new String(preScan, StandardCharsets.UTF_8);
+
+      final PipedOutputStream pipedOutputStream = new PipedOutputStream();
       final PipedInputStream pipe = new PipedInputStream(pipedOutputStream);
       pipedOutputStream.write(preScan, 0, len);
 
       executorService.execute(
-          () -> {
-            try {
-              copy(captureInput, pipedOutputStream);
-            } catch (Exception e) {
-              throw new SchemaValidationException(
-                  "Exception occurred during reading of schema version from input document : "
-                      + e.getMessage(),
-                  e);
-            }
-          });
+              () -> {
+                try {
+                  copy(captureInput, pipedOutputStream);
+                } catch (Exception e) {
+                  throw new SchemaValidationException(
+                          "Exception occurred during reading of schema version from input document : "
+                                  + e.getMessage(),
+                          e);
+                }
+              });
 
       if (preScanType.contains("epcis:EPCISDocument")) {
         return pipe;
