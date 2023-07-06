@@ -29,25 +29,30 @@ public class SchemaValidator {
   public List<ValidationError> validate(
       final InputStream epcisInputData, final String mediaType, final SchemaType schemaType) {
 
-    // If input is JSON/JSON-LD and is Capture document then validate against Capture schema.
-    if (mediaType.toLowerCase().contains("json") && schemaType.equals(SchemaType.CAPTURE_SCHEMA)) {
-      return jsonSchemaValidator.validateAgainstCaptureSchema(epcisInputData);
-    } else if (mediaType.toLowerCase().contains("json")
-        && schemaType.equals(SchemaType.QUERY_SCHEMA)) {
-      // If input is JSON/JSON-LD and is Query document then validate against Query schema.
-      return jsonSchemaValidator.validateAgainstQuerySchema(epcisInputData);
-    } else if (mediaType.toLowerCase().contains("xml")
-        && schemaType.equals(SchemaType.CAPTURE_SCHEMA)) {
-      // If input is XML and is Capture document then validate against Capture schema.
-      return xmlSchemaValidator.validateAgainstCaptureSchema(epcisInputData);
-    } else if (mediaType.toLowerCase().contains("xml")
-        && schemaType.equals(SchemaType.QUERY_SCHEMA)) {
-      // If input is XML and is Query document then validate against Query schema.
-      return xmlSchemaValidator.validateAgainstQuerySchema(epcisInputData);
-    } else {
-      // If none of the request matches then throw the non-support exception
-      throw new UnsupportedOperationException(
-          "Requested validation is not supported currently, Please check provided MediaType/schemaType and try again!!!");
+    Validator validator = getValidator(mediaType);
+
+    if(schemaType.equals(SchemaType.CAPTURE_SCHEMA)) {
+      return validator.validateAgainstCaptureSchema(epcisInputData);
     }
+
+    if(schemaType.equals(SchemaType.QUERY_SCHEMA)) {
+      return validator.validateAgainstQuerySchema(epcisInputData);
+    }
+
+    throw new UnsupportedOperationException(
+            "Unsupported schema type : " + schemaType);
+  }
+
+  private Validator getValidator(final String mediaType) {
+
+    if (mediaType.toLowerCase().contains("json")) {
+      return jsonSchemaValidator;
+    }
+
+    if (mediaType.toLowerCase().contains("xml")) {
+      return xmlSchemaValidator;
+    }
+
+    throw new UnsupportedOperationException("Unsupported media type : " + mediaType);
   }
 }

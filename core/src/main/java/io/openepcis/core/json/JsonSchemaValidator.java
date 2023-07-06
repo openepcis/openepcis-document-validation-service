@@ -6,7 +6,7 @@ import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SpecVersion;
 import com.networknt.schema.ValidationMessage;
-import io.openepcis.core.Validation;
+import io.openepcis.core.Validator;
 import io.openepcis.core.exception.SchemaValidationException;
 import io.openepcis.core.formatter.JsonErrorHandler;
 import io.openepcis.core.formatter.ValidationError;
@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Set;
 
 @Slf4j
-public class JsonSchemaValidator implements Validation {
+public class JsonSchemaValidator implements Validator {
 
   private final ObjectMapper mapper = new ObjectMapper();
   private final JsonSchemaFactory validatorFactory =
@@ -35,8 +35,7 @@ public class JsonSchemaValidator implements Validation {
   }
 
   private JsonSchema loadSchema(final String path) {
-    final InputStream inputStream = JsonSchemaValidator.class.getResourceAsStream(path);
-    return validatorFactory.getSchema(inputStream);
+    return validatorFactory.getSchema(getResourceAsStream(path));
   }
 
   @Override

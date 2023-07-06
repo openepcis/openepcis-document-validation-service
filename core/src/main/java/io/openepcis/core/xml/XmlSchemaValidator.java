@@ -1,6 +1,6 @@
 package io.openepcis.core.xml;
 
-import io.openepcis.core.Validation;
+import io.openepcis.core.Validator;
 import io.openepcis.core.exception.SchemaValidationException;
 import io.openepcis.core.formatter.ValidationError;
 import io.openepcis.core.formatter.XmlErrorHandler;
@@ -11,12 +11,10 @@ import javax.xml.XMLConstants;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-import javax.xml.validation.Validator;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-
-public class XmlSchemaValidator implements Validation {
+public class XmlSchemaValidator implements Validator {
 
   private final SchemaFactory schemaFactory =
       SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
@@ -38,7 +36,7 @@ public class XmlSchemaValidator implements Validation {
   public List<ValidationError> validateAgainstCaptureSchema(final InputStream captureInput) {
     try {
       final InputStream inputEvent = eventModifier.modifyEvent(captureInput);
-      final Validator validator = captureXmlSchema.newValidator();
+      final javax.xml.validation.Validator validator = captureXmlSchema.newValidator();
       validator.setErrorHandler(this.xsdErrorHandler);
       validator.validate(new StreamSource(inputEvent));
     } catch (Exception e) {
@@ -54,7 +52,7 @@ public class XmlSchemaValidator implements Validation {
   @Override
   public List<ValidationError> validateAgainstQuerySchema(InputStream queryInput)
       throws SchemaValidationException {
-    final Validator validator = queryXmlSchema.newValidator();
+    final javax.xml.validation.Validator validator = queryXmlSchema.newValidator();
     validator.setErrorHandler(this.xsdErrorHandler);
 
     try {
@@ -72,7 +70,7 @@ public class XmlSchemaValidator implements Validation {
   public Schema loadSchema(final String name) {
     Schema schema;
     try {
-      schema = schemaFactory.newSchema(new StreamSource(getClass().getResourceAsStream(name)));
+      schema = schemaFactory.newSchema(new StreamSource(getResourceAsStream(name)));
     } catch (Exception e) {
       throw new SchemaValidationException(
           "Exception occurred during the loading of the XSD document to schema : "
@@ -81,4 +79,5 @@ public class XmlSchemaValidator implements Validation {
     }
     return schema;
   }
+
 }
