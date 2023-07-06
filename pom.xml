@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>io.openepcis</groupId>
+    <artifactId>openepcis-bom</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+  </parent>
+  <artifactId>openepcis-document-validation-service-build</artifactId>
+  <packaging>pom</packaging>
+  <properties>
+    <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
+  </properties>
+  <modules>
+    <module>core</module>
+    <module>rest-api</module>
+    <module>quarkus-app</module>
+  </modules>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>${quarkus.platform.group-id}</groupId>
+        <artifactId>${quarkus.platform.artifact-id}</artifactId>
+        <version>${quarkus.platform.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>io.openepcis</groupId>
+        <artifactId>openepcis-document-validation-service</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.openepcis</groupId>
+        <artifactId>openepcis-document-validation-service-rest-api</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <!-- OpenEPCIS model dependencies -->
+      <dependency>
+        <groupId>io.openepcis</groupId>
+        <artifactId>openepcis-model-rest</artifactId>
+        <version>${project.version}</version>
+        <scope>compile</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.openepcis</groupId>
+        <artifactId>openepcis-model-epcis</artifactId>
+        <version>${project.version}</version>
+        <scope>compile</scope>
+      </dependency>
+
+      <!-- Eclipse microprofile OpenAPI support -->
+      <dependency>
+        <groupId>org.eclipse.microprofile.openapi</groupId>
+        <artifactId>microprofile-openapi-api</artifactId>
+        <version>2.0.1</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.microprofile.context-propagation</groupId>
+        <artifactId>microprofile-context-propagation-api</artifactId>
+        <version>1.2</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-logging</groupId>
+        <artifactId>commons-logging</artifactId>
+        <version>1.2</version>
+      </dependency>
+      <dependency>
+        <groupId>org.graalvm.nativeimage</groupId>
+        <artifactId>svm</artifactId>
+        <version>22.3.1</version>
+      </dependency>
+
+    </dependencies>
+  </dependencyManagement>
+
+  <repositories>
+    <repository>
+      <id>sonatype-staging</id>
+      <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+    </repository>
+  </repositories>
+</project>

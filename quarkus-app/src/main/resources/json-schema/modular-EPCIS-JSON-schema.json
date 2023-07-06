@@ -1,0 +1,171 @@
+{
+  "$id": "https://ref.gs1.org/standards/epcis/epcis-json-schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": [
+    "type"
+  ],
+  "properties": {
+    "type": {
+      "type": "string"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "enum": ["EPCISDocument"]
+          }
+        }
+      },
+      "then": {
+        "$ref": "epcis-json-schema.json#/definitions/epcisDocument"
+      }
+    },
+    {
+      "if": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "enum": ["EPCISQueryDocument"]
+          }
+        }
+      },
+      "then": {
+        "$ref": "epcis-json-schema.json#/definitions/epcisQueryDocument"
+      }
+    },
+    {
+      "if": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "enum": ["ObjectEvent"]
+          }
+        }
+      },
+      "then": {
+        "allOf": [
+          {
+            "$ref": "epcis-json-schema.json#/definitions/ObjectEvent"
+          },
+          {
+            "$ref": "epcis-json-schema.json#/definitions/required-ld-context"
+          }
+        ]
+      }
+    },
+    {
+      "if": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "enum": ["AggregationEvent"]
+          }
+        }
+      },
+      "then": {
+        "allOf": [
+          {
+            "$ref": "epcis-json-schema.json#/definitions/AggregationEvent"
+          },
+          {
+            "$ref": "epcis-json-schema.json#/definitions/required-ld-context"
+          }
+        ]
+      }
+    },
+    {
+      "if": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "enum": ["AssociationEvent"]
+          }
+        }
+      },
+      "then": {
+        "allOf": [
+          {
+            "$ref": "epcis-json-schema.json#/definitions/AssociationEvent"
+          },
+          {
+            "$ref": "epcis-json-schema.json#/definitions/required-ld-context"
+          }
+        ]
+      }
+    },
+    {
+      "if": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "enum": ["TransformationEvent"]
+          }
+        }
+      },
+      "then": {
+        "allOf": [
+          {
+            "$ref": "epcis-json-schema.json#/definitions/TransformationEvent"
+          },
+          {
+            "$ref": "epcis-json-schema.json#/definitions/required-ld-context"
+          }
+        ]
+      }
+    },
+    {
+      "if": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "enum": ["TransactionEvent"]
+          }
+        }
+      },
+      "then": {
+        "allOf": [
+          {
+            "$ref": "epcis-json-schema.json#/definitions/TransactionEvent"
+          },
+          {
+            "$ref": "epcis-json-schema.json#/definitions/required-ld-context"
+          }
+        ]
+      }
+    },
+    {
+      "if": {
+        "not": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "enum": [
+                "AssociationEvent",
+                "ObjectEvent",
+                "AggregationEvent",
+                "TransactionEvent",
+                "TransformationEvent",
+                "EPCISQueryDocument",
+                "EPCISDocument"
+              ]
+            }
+          }
+        }
+      },
+      "then": {
+        "allOf": [
+          {
+            "$ref": "epcis-json-schema.json#/definitions/Extended-Event"
+          },
+          {
+            "$ref": "epcis-json-schema.json#/definitions/required-ld-context"
+          }
+        ]
+      }
+    }
+  ]
+}

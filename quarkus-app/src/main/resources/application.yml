@@ -1,0 +1,8 @@
+quarkus:
+  swagger-ui:
+    always-include: true
+  http:
+    cors:
+      enabled: true
+    port: 9000
+
