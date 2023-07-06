@@ -22,11 +22,19 @@ public class XmlDocumentTest {
     }
 
     @Test
-    public void captureDocumentTest() {
-        inputStream = getClass().getResourceAsStream("/xml/captureDocument.xml");
+    public void captureDocumentWithBareEventTest() {
+        inputStream = getClass().getResourceAsStream("/xml/captureDocument-independent-object-event.xml");
         final List<ValidationError> xsdCaptureErrors =
                 validator.validate(inputStream, "application/xml", SchemaType.CAPTURE_SCHEMA);
-        assertTrue(xsdCaptureErrors.size() > 0);
+        assertEquals(1, xsdCaptureErrors.size());
+    }
+
+    @Test
+    public void captureDocumentCompleteEPCISDocumentTest() {
+        inputStream = getClass().getResourceAsStream("/xml/captureDocument-complete-epcis-20-document.xml");
+        final List<ValidationError> xsdCaptureErrors =
+                validator.validate(inputStream, "application/xml", SchemaType.CAPTURE_SCHEMA);
+        assertEquals(0, xsdCaptureErrors.size());
     }
 
     @Test
