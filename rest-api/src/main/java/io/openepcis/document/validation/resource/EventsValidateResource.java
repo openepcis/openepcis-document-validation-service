@@ -30,10 +30,6 @@ public class EventsValidateResource {
 
     @Inject SchemaValidator schemaValidator;
 
-    @Operation(summary = "The Events Validation API", description = "eventsValidate")
-    @Tag(
-            name = "Events",
-            description = "Endpoints that allow you to retrieve EPCIS events as Web resources.")
     @APIResponses(
             value = {
                     @APIResponse(
