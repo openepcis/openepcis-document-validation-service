@@ -1,5 +1,6 @@
 package io.openepcis;
 
+import io.openepcis.constants.EPCISVersion;
 import io.openepcis.core.SchemaType;
 import io.openepcis.core.SchemaValidator;
 import io.openepcis.core.formatter.ValidationError;
@@ -26,7 +27,7 @@ public class JsonDocumentTest {
     public void validateCaptureDocumentTest() {
         inputStream = getClass().getResourceAsStream("/json/CaptureDocument.json");
         final List<ValidationError> jsonCaptureErrors =
-                validator.validate(inputStream, "application/json", SchemaType.CAPTURE_SCHEMA);
+                validator.validate(inputStream, "application/json", SchemaType.CAPTURE_SCHEMA, EPCISVersion.VERSION_2_0_0.getSchemaVersion());
         assertTrue(jsonCaptureErrors.size() > 0);
     }
 
@@ -34,7 +35,7 @@ public class JsonDocumentTest {
     public void validateQueryDocumentWithEventTypeTest() {
         inputStream = getClass().getResourceAsStream("/json/QueryDocumentWithEventType.json");
         final List<ValidationError> jsonQueryErrors =
-                validator.validate(inputStream, "application/json", SchemaType.QUERY_SCHEMA);
+                validator.validate(inputStream, "application/json", SchemaType.QUERY_SCHEMA, EPCISVersion.VERSION_2_0_0.getSchemaVersion());
         assertEquals(0, jsonQueryErrors.size());
     }
 
@@ -42,7 +43,7 @@ public class JsonDocumentTest {
     public void validateQueryDocumentWithEventTimeTest() {
         inputStream = getClass().getResourceAsStream("/json/queryDocumentWithEventTime.json");
         final List<ValidationError> jsonQueryErrors =
-                validator.validate(inputStream, "application/json", SchemaType.QUERY_SCHEMA);
+                validator.validate(inputStream, "application/json", SchemaType.QUERY_SCHEMA, EPCISVersion.VERSION_2_0_0.getSchemaVersion());
         assertEquals(0, jsonQueryErrors.size());
     }
 
@@ -50,7 +51,7 @@ public class JsonDocumentTest {
     public void validateQueryDocumentWithActionTest() {
         inputStream = getClass().getResourceAsStream("/json/queryDocumentWithAction.json");
         final List<ValidationError> jsonQueryErrors =
-                validator.validate(inputStream, "application/json", SchemaType.QUERY_SCHEMA);
+                validator.validate(inputStream, "application/json", SchemaType.QUERY_SCHEMA, EPCISVersion.VERSION_2_0_0.getSchemaVersion());
         assertEquals(0, jsonQueryErrors.size());
     }
 
@@ -58,7 +59,7 @@ public class JsonDocumentTest {
     public void validateQueryDocumentWithInValidEventTypeTest() {
         inputStream = getClass().getResourceAsStream("/json/queryDocumentWithInvalidEventType.json");
         final List<ValidationError> jsonQueryErrors =
-                validator.validate(inputStream, "application/json", SchemaType.QUERY_SCHEMA);
+                validator.validate(inputStream, "application/json", SchemaType.QUERY_SCHEMA, EPCISVersion.VERSION_2_0_0.getSchemaVersion());
         assertTrue(jsonQueryErrors.size() > 0);
     }
 

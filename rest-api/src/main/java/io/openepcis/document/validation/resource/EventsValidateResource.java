@@ -11,12 +11,14 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import org.jboss.resteasy.reactive.RestHeader;
 
 import java.io.InputStream;
 import java.util.List;
@@ -98,6 +100,13 @@ public class EventsValidateResource {
     })
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/ld+json"})
     public Uni<Response> validateEvents(
+            @Parameter(
+                    name = "GS1-EPCIS-Version",
+                    description = "The EPCIS version",
+                    in = ParameterIn.HEADER)
+            @RestHeader(value = "GS1-EPCIS-Version")
+            @DefaultValue("2.0")
+            String epcisVersion,
             @QueryParam("schemaType")
             String schemaType,
             @HeaderParam("Content-Type") final String contentType,
@@ -105,9 +114,9 @@ public class EventsValidateResource {
 
         List<ValidationError> result = null;
         if (schemaType.equals(SchemaType.CAPTURE_SCHEMA.getSchema())) {
-            result = schemaValidator.validate(body, contentType, SchemaType.CAPTURE_SCHEMA);
+            result = schemaValidator.validate(body, contentType, SchemaType.CAPTURE_SCHEMA, epcisVersion);
         } else if (schemaType.equals(SchemaType.QUERY_SCHEMA.getSchema())) {
-            result = schemaValidator.validate(body, contentType, SchemaType.QUERY_SCHEMA);
+            result = schemaValidator.validate(body, contentType, SchemaType.QUERY_SCHEMA, epcisVersion);
         }
         Response.ResponseBuilder responseBuilder = Response.ok();
         responseBuilder.entity(result);

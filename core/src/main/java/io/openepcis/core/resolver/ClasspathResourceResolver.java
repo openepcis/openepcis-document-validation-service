@@ -7,6 +7,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 public class ClasspathResourceResolver implements LSResourceResolver {
+
+  private final String base_path;
+
+  public ClasspathResourceResolver(String basePath) {
+    base_path = basePath;
+  }
+
   @Override
   public LSInput resolveResource(
       final String type,
@@ -15,7 +22,7 @@ public class ClasspathResourceResolver implements LSResourceResolver {
       final String systemId,
       final String baseURI) {
     final LSInputImpl input = new LSInputImpl();
-    final String path = "xsd/" + systemId;
+    final String path = base_path+"/" + systemId;
     final InputStream stream = getClass().getClassLoader().getResourceAsStream(path);
 
     input.setPublicId(publicId);
