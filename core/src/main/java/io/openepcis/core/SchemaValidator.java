@@ -35,7 +35,6 @@ public class SchemaValidator {
             final SchemaType schemaType,
             final String version) {
 
-        try {
             Validator validator = getValidator(mediaType, version);
 
             if (schemaType.equals(SchemaType.CAPTURE_SCHEMA)) {
@@ -49,11 +48,8 @@ public class SchemaValidator {
             throw new UnsupportedOperationException(
                     "Unsupported schema type : " + schemaType);
 
-        } catch (Exception e) {
-            throw new RuntimeException("ERROR while processing a inputStream", e);
         }
 
-    }
     private Validator getValidator(final String mediaType, String version) {
 
         if (mediaType.toLowerCase().contains("json")) {

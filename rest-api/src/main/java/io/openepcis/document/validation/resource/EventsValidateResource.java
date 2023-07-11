@@ -25,7 +25,7 @@ import java.util.List;
 
 @Path("/api")
 @Tag(
-        name = "Event Validation Service",
+        name = "Event Validation",
         description = "Validate event for EPCIS XML or JSON/JSON-LD document or event list.")
 @Slf4j
 public class EventsValidateResource {
