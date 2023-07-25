@@ -7,7 +7,7 @@
     <artifactId>openepcis-bom</artifactId>
     <version>1.0.0-SNAPSHOT</version>
   </parent>
-  <artifactId>openepcis-document-validation-service-build</artifactId>
+  <artifactId>openepcis-document-validation-parent</artifactId>
   <packaging>pom</packaging>
   <properties>
     <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
@@ -50,6 +50,12 @@
         <artifactId>openepcis-model-epcis</artifactId>
         <version>${project.version}</version>
         <scope>compile</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>io.openepcis</groupId>
+        <artifactId>openepcis-test-resources</artifactId>
+        <version>${project.version}</version>
       </dependency>
 
       <!-- Eclipse microprofile OpenAPI support -->

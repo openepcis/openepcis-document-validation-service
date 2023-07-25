@@ -3,6 +3,8 @@ quarkus:
     always-include: true
   http:
     cors:
-      enabled: true
+      ~: true
+      methods: GET,POST,OPTIONS
+      origins: "/.*/"
     port: 9000
 
