@@ -1,5 +1,6 @@
 package io.openepcis.validation.rest.resource.test;
 
+import io.openepcis.resources.util.Commons;
 import io.openepcis.validation.rest.resource.ValidationResource;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.common.http.TestHTTPResource;
