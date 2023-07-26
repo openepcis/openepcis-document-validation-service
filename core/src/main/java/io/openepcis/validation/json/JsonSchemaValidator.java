@@ -2,19 +2,14 @@ package io.openepcis.validation.json;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.networknt.schema.JsonSchema;
-import com.networknt.schema.JsonSchemaFactory;
-import com.networknt.schema.SpecVersion;
-import com.networknt.schema.ValidationMessage;
+import com.networknt.schema.*;
 import io.openepcis.validation.Validator;
 import io.openepcis.validation.exception.SchemaValidationException;
-import io.openepcis.validation.formatter.JsonErrorHandler;
-import io.openepcis.validation.formatter.ValidationError;
+import io.openepcis.validation.model.ValidationError;
 import io.smallrye.mutiny.Multi;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.InputStream;
-import java.util.List;
 import java.util.Set;
 
 @Slf4j

@@ -1,7 +1,6 @@
 package io.openepcis.validation.xml;
 
-import io.openepcis.validation.formatter.XmlErrorHandler;
-import io.openepcis.validation.resolver.ClasspathResourceResolver;
+import io.openepcis.validation.xml.resolver.ClasspathResourceResolver;
 
 import javax.xml.XMLConstants;
 import javax.xml.validation.SchemaFactory;

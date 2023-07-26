@@ -1,4 +1,4 @@
-package io.openepcis.validation.resolver;
+package io.openepcis.validation.xml.resolver;
 
 import lombok.Getter;
 import lombok.Setter;

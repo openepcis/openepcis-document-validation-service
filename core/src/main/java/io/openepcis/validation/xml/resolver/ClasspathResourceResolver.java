@@ -1,4 +1,4 @@
-package io.openepcis.validation.resolver;
+package io.openepcis.validation.xml.resolver;
 
 import org.w3c.dom.ls.LSInput;
 import org.w3c.dom.ls.LSResourceResolver;

@@ -65,6 +65,11 @@
             <artifactId>quarkus-resteasy-reactive-jackson</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-resteasy-reactive-jaxb</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <!-- REST assured as dependencies for testing -->
         <dependency>

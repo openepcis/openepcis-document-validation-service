@@ -38,18 +38,21 @@
         <version>${project.version}</version>
       </dependency>
 
-      <!-- OpenEPCIS model dependencies -->
+      <!-- OpenEPCIS xml dependencies -->
+      <dependency>
+        <groupId>io.openepcis</groupId>
+        <artifactId>openepcis-epcis-constants</artifactId>
+        <version>${project.version}</version>
+      </dependency>
       <dependency>
         <groupId>io.openepcis</groupId>
         <artifactId>openepcis-model-rest</artifactId>
         <version>${project.version}</version>
-        <scope>compile</scope>
       </dependency>
       <dependency>
         <groupId>io.openepcis</groupId>
         <artifactId>openepcis-model-epcis</artifactId>
         <version>${project.version}</version>
-        <scope>compile</scope>
       </dependency>
 
       <dependency>

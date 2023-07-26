@@ -1,5 +1,6 @@
-package io.openepcis.validation.formatter;
+package io.openepcis.validation.xml;
 
+import io.openepcis.validation.model.ValidationError;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXParseException;
 

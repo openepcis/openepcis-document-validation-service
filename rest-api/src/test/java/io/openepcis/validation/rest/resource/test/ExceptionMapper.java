@@ -7,7 +7,7 @@ import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 
 public class ExceptionMapper {
 
-    // TODO: move common ExceptionMappers to new openepcis-model-rest-exception
+    // TODO: move common ExceptionMappers to new openepcis-xml-rest-exception
 
     @ServerExceptionMapper
     public final RestResponse<ProblemResponseBody> mapException(

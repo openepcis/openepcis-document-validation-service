@@ -1,11 +1,10 @@
 package io.openepcis.validation;
 
 import io.openepcis.validation.exception.SchemaValidationException;
-import io.openepcis.validation.formatter.ValidationError;
+import io.openepcis.validation.model.ValidationError;
 import io.smallrye.mutiny.Multi;
 
 import java.io.InputStream;
-import java.util.List;
 
 public interface Validator {
 

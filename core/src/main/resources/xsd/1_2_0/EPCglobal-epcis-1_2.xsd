@@ -169,7 +169,7 @@ GS1 retains the right to make changes to this document at any time, without noti
 
   <!-- EPCIS CORE ELEMENT TYPES -->
   <xsd:complexType name="EventListType">
-    <!-- sequence/choice introduced to support parsers complaining about the content model not being determinist -->
+    <!-- sequence/choice introduced to support parsers complaining about the content xml not being determinist -->
     <xsd:sequence>
       <xsd:choice minOccurs="0" maxOccurs="unbounded">
       <xsd:element name="ObjectEvent" type="epcis:ObjectEventType" minOccurs="0" maxOccurs="unbounded"/>

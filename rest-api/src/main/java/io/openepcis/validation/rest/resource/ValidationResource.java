@@ -1,17 +1,22 @@
 package io.openepcis.validation.rest.resource;
 
+import io.openepcis.constants.EPCIS;
+import io.openepcis.constants.EPCISDocumentType;
 import io.openepcis.model.rest.ProblemResponseBody;
-import io.openepcis.validation.SchemaType;
 import io.openepcis.validation.SchemaValidator;
+import io.openepcis.validation.model.ValidationError;
+import io.openepcis.validation.rest.xml.ValidationResult;
 import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.context.ManagedExecutor;
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;
+import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
@@ -20,7 +25,6 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.resteasy.reactive.RestHeader;
 import org.jboss.resteasy.reactive.RestResponse;
-import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 
 import java.io.InputStream;
 
@@ -37,18 +41,32 @@ public class ValidationResource {
     @Inject
     ManagedExecutor managedExecutor;
 
+    @Inject
+    HttpHeaders httpHeaders;
+
     @APIResponses(
             value = {
                     @APIResponse(
                             responseCode = "200",
-                            description = "Successfully validated one or more EPCIS events"),
+                            description = "Successfully validated one or more EPCIS events",
+                            content = @Content(example = "")),
                     @APIResponse(
                             responseCode = "400",
                             description = "An error occurred while validating EPCIS events",
-                            content =
+                            content = {
                             @Content(
-                                    schema = @Schema(implementation = ProblemResponseBody.class),
-                                    example = ResponseBodyExamples.RESPONSE_400_QUERY_ISSUES)),
+                                    mediaType = MediaType.APPLICATION_JSON,
+                                    schema = @Schema(type = SchemaType.ARRAY, implementation = ValidationError.class),
+                                    example = ResponseBodyExamples.RESPONSE_400_VALIDATION_ERRORS),
+                            @Content(
+                                    mediaType = MediaType.APPLICATION_XML,
+                                    example = ResponseBodyExamples.RESPONSE_400_VALIDATION_ERRORS_XML,
+                                    schema = @Schema(implementation = ValidationResult.class)),
+                            @Content(
+                                    mediaType = "application/problem+json",
+                                    schema = @Schema(type = SchemaType.ARRAY, implementation = ValidationError.class),
+                                    example = ResponseBodyExamples.RESPONSE_400_VALIDATION_ERRORS)
+                            }),
                     @APIResponse(
                             responseCode = "401",
                             description = "Authorization information is missing or invalid.",
@@ -84,24 +102,14 @@ public class ValidationResource {
                             content =
                             @Content(
                                     schema = @Schema(implementation = ProblemResponseBody.class),
-                                    example = ResponseBodyExamples.RESPONSE_415_UNSUPPORTED_MEDIA_TYPE)),
-                    @APIResponse(
-                            responseCode = "413",
-                            description =
-                                    "The `POST` request is too large. It exceeds the limits "
-                                            + "set in `GS1-EPCIS-Capture-Limit` and/or `GS1-EPCIS-Capture-File-Size-Limit`.",
-                            content =
-                            @Content(
-                                    schema = @Schema(implementation = ProblemResponseBody.class),
-                                    example = ResponseBodyExamples.RESPONSE_413_CAPTURE_PAYLOAD_TOO_LARGE))
+                                    example = ResponseBodyExamples.RESPONSE_415_UNSUPPORTED_MEDIA_TYPE))
             })
     @POST
     @Path("events/validate")
     @Produces({
             MediaType.APPLICATION_JSON,
             MediaType.APPLICATION_XML,
-            "application/problem+json",
-            "application/ld+json"
+            "application/problem+json"
     })
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/ld+json"})
     public Uni<RestResponse<?>> validateEvents(
@@ -112,17 +120,23 @@ public class ValidationResource {
             @RestHeader(value = "GS1-EPCIS-Version")
             @DefaultValue("2.0")
             String epcisVersion,
-            @QueryParam("schemaType")
-            String schemaType,
-            @HeaderParam("Content-Type") final String contentType,
+            @QueryParam("epcisDocumentSchema")
+            @DefaultValue(EPCIS.CAPTURE)
+            @Schema(type=SchemaType.STRING, enumeration = { EPCIS.CAPTURE, EPCIS.QUERY })
+            String epcisDocumentSchema,
             @Valid InputStream body) {
 
-        return schemaValidator.validate(body, contentType, SchemaType.fromString(schemaType), epcisVersion)
+        final String contentType = httpHeaders.getHeaderString(HttpHeaders.CONTENT_TYPE);
+        final String accept = httpHeaders.getHeaderString(HttpHeaders.ACCEPT);
+        return schemaValidator.validate(body, contentType, EPCISDocumentType.fromString(epcisDocumentSchema), epcisVersion)
                 .runSubscriptionOn(managedExecutor)
                 .collect().asList()
                 .chain(validationErrors -> {
                     if (validationErrors.isEmpty()) {
                         return Uni.createFrom().item(RestResponse.ok());
+                    }
+                    if (MediaType.APPLICATION_XML.equals(accept)) {
+                        return Uni.createFrom().item(RestResponse.status(Response.Status.BAD_REQUEST, new ValidationResult(validationErrors)));
                     }
                     return Uni.createFrom().item(RestResponse.status(Response.Status.BAD_REQUEST, validationErrors));
                 }).onFailure().recoverWithItem(this::createErrorResponse);

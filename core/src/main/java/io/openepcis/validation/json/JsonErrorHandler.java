@@ -1,6 +1,7 @@
-package io.openepcis.validation.formatter;
+package io.openepcis.validation.json;
 
 import com.networknt.schema.ValidationMessage;
+import io.openepcis.validation.model.ValidationError;
 
 import java.util.Collection;
 

@@ -2,8 +2,7 @@ package io.openepcis.validation.xml;
 
 import io.openepcis.validation.Validator;
 import io.openepcis.validation.exception.SchemaValidationException;
-import io.openepcis.validation.formatter.ValidationError;
-import io.openepcis.validation.formatter.XmlErrorHandler;
+import io.openepcis.validation.model.ValidationError;
 import io.smallrye.mutiny.Multi;
 import org.xml.sax.SAXException;
 
