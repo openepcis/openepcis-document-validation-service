@@ -34,9 +34,9 @@ public class SchemaValidator {
             final InputStream epcisInputData,
             final String mediaType,
             final EPCISDocumentType epcisDocumentSchema,
-            final String version) {
+            final EPCISVersion epcisVersion) {
 
-            Validator validator = getValidator(mediaType, version);
+            Validator validator = getValidator(mediaType, epcisVersion);
 
             if (epcisDocumentSchema.equals(EPCISDocumentType.CAPTURE)) {
                 return validator.validateAgainstCaptureSchema(epcisInputData);
@@ -51,7 +51,7 @@ public class SchemaValidator {
 
         }
 
-    private Validator getValidator(final String mediaType, String version) {
+    private Validator getValidator(final String mediaType, EPCISVersion epcisVersion) {
 
         if (mediaType.toLowerCase().contains("json")) {
             return jsonSchemaValidator;
@@ -59,11 +59,11 @@ public class SchemaValidator {
 
         if (mediaType.toLowerCase().contains("xml")) {
 
-            if (EPCISVersion.VERSION_2_0_0.getSchemaVersion().equals(version)) {
+            if (EPCISVersion.VERSION_2_0_0.getSchemaVersion().equals(epcisVersion.getSchemaVersion())) {
                 return xml20SchemaValidator;
             }
 
-            if (EPCISVersion.VERSION_1_2_0.getSchemaVersion().equals(version)) {
+            if (EPCISVersion.VERSION_1_2_0.getSchemaVersion().equals(epcisVersion.getSchemaVersion())) {
                 return xml12SchemaValidator;
             }
         }
