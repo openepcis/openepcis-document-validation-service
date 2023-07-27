@@ -2,6 +2,7 @@ package io.openepcis.validation.rest.resource;
 
 import io.openepcis.constants.EPCIS;
 import io.openepcis.constants.EPCISDocumentType;
+import io.openepcis.constants.EPCISVersion;
 import io.openepcis.model.rest.ProblemResponseBody;
 import io.openepcis.validation.SchemaValidator;
 import io.openepcis.validation.model.ValidationError;
@@ -118,7 +119,7 @@ public class ValidationResource {
                     description = "The EPCIS version",
                     in = ParameterIn.HEADER)
             @RestHeader(value = "GS1-EPCIS-Version")
-            @DefaultValue("2.0")
+            @DefaultValue("2.0.0")
             String epcisVersion,
             @QueryParam("epcisDocumentSchema")
             @DefaultValue(EPCIS.CAPTURE)
@@ -128,7 +129,7 @@ public class ValidationResource {
 
         final String contentType = httpHeaders.getHeaderString(HttpHeaders.CONTENT_TYPE);
         final String accept = httpHeaders.getHeaderString(HttpHeaders.ACCEPT);
-        return schemaValidator.validate(body, contentType, EPCISDocumentType.fromString(epcisDocumentSchema), epcisVersion)
+        return schemaValidator.validate(body, contentType, EPCISDocumentType.fromString(epcisDocumentSchema), EPCISVersion.fromString(epcisVersion).get())
                 .runSubscriptionOn(managedExecutor)
                 .collect().asList()
                 .chain(validationErrors -> {
