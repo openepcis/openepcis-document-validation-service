@@ -5,7 +5,7 @@ import io.openepcis.constants.EPCISDocumentType;
 import io.openepcis.model.rest.ProblemResponseBody;
 import io.openepcis.validation.SchemaValidator;
 import io.openepcis.validation.model.ValidationError;
-import io.openepcis.validation.rest.xml.ValidationResult;
+import io.openepcis.validation.model.xml.ValidationResult;
 import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;

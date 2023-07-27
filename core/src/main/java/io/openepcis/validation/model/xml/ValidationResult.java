@@ -1,4 +1,4 @@
-package io.openepcis.validation.rest.xml;
+package io.openepcis.validation.model.xml;
 
 import io.openepcis.validation.model.ValidationError;
 import jakarta.xml.bind.annotation.*;

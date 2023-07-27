@@ -15,6 +15,7 @@
   <modules>
     <module>core</module>
     <module>rest-api</module>
+    <module>servlet-api</module>
     <module>quarkus-app</module>
   </modules>
   <dependencyManagement>
