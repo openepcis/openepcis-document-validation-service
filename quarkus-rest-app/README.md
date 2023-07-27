@@ -1,4 +1,4 @@
-# openepcis-document-validation-service-quarkus-app
+# openepcis-document-validation-quarkus-servlet-app
 
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
 

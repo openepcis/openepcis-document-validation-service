@@ -9,12 +9,12 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
     <groupId>io.openepcis</groupId>
-    <artifactId>openepcis-document-validation-service-quarkus-app</artifactId>
+    <artifactId>openepcis-document-validation-quarkus-rest-app</artifactId>
     <packaging>jar</packaging>
     <dependencies>
         <dependency>
             <groupId>io.openepcis</groupId>
-            <artifactId>openepcis-document-validation-service-rest-api</artifactId>
+            <artifactId>openepcis-document-validation-rest-api</artifactId>
         </dependency>
 
         <!-- Quarkus Service related dependency-->

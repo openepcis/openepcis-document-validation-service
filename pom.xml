@@ -14,9 +14,10 @@
   </properties>
   <modules>
     <module>core</module>
+    <module>restassured</module>
     <module>rest-api</module>
     <module>servlet-api</module>
-    <module>quarkus-app</module>
+    <module>quarkus-rest-app</module>
   </modules>
   <dependencyManagement>
     <dependencies>
@@ -35,9 +36,20 @@
       </dependency>
       <dependency>
         <groupId>io.openepcis</groupId>
-        <artifactId>openepcis-document-validation-service-rest-api</artifactId>
+        <artifactId>openepcis-document-validation-rest-api</artifactId>
         <version>${project.version}</version>
       </dependency>
+      <dependency>
+        <groupId>io.openepcis</groupId>
+        <artifactId>openepcis-document-validation-servlet-api</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.openepcis</groupId>
+        <artifactId>openepcis-document-validation-restassured</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
 
       <!-- OpenEPCIS xml dependencies -->
       <dependency>

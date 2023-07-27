@@ -1,7 +1,7 @@
-package io.openepcis.validation.rest.resource.test;
+package validation;
 
-import io.openepcis.validation.rest.resource.ValidationResource;
 import io.openepcis.validation.restassured.AbstractValidationResourceTest;
+import io.openepcis.validation.servlet.ValidationServlet;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.junit.QuarkusTest;
@@ -9,14 +9,14 @@ import io.quarkus.test.junit.QuarkusTest;
 import java.net.URL;
 
 @QuarkusTest
-public class ValidationResourceTest extends AbstractValidationResourceTest {
+public class ValidationServletTest extends AbstractValidationResourceTest {
 
-    @TestHTTPEndpoint(ValidationResource.class)
+    @TestHTTPEndpoint(ValidationServlet.class)
     @TestHTTPResource
     URL url;
 
     @Override
     protected String url() {
-        return url.toString()+"/events/validate";
+        return url.toString();
     }
 }

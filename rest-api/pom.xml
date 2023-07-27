@@ -9,7 +9,7 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
     <groupId>io.openepcis</groupId>
-    <artifactId>openepcis-document-validation-service-rest-api</artifactId>
+    <artifactId>openepcis-document-validation-rest-api</artifactId>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -72,6 +72,11 @@
         </dependency>
 
         <!-- REST assured as dependencies for testing -->
+        <dependency>
+            <groupId>io.openepcis</groupId>
+            <artifactId>openepcis-document-validation-restassured</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-junit5</artifactId>
