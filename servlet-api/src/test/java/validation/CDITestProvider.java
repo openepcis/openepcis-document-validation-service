@@ -38,7 +38,7 @@ public class CDITestProvider {
 
     @Produces
     @Singleton
-    Marshaller jaxbContext() {
+    Marshaller marhaller() {
         try {
             final JAXBContext ctx =
                     JAXBContext.newInstance(ValidationResult.class, ProblemResponseBody.class);
