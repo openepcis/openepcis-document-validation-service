@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public abstract class AbstractValidationResourceTest {
+public abstract class AbstractValidationTest {
 
 
     protected abstract String url();
