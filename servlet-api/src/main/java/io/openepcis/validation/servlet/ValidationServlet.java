@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.openepcis.constants.EPCISDocumentType;
 import io.openepcis.constants.EPCISVersion;
 import io.openepcis.model.rest.ProblemResponseBody;
+import io.openepcis.model.rest.servlet.ServletSupport;
 import io.openepcis.validation.SchemaValidator;
 import io.openepcis.validation.model.ValidationError;
 import io.openepcis.validation.model.xml.ValidationResult;
@@ -48,41 +49,35 @@ public class ValidationServlet extends HttpServlet {
     SchemaValidator schemaValidator;
 
     @Inject
-    ManagedExecutor managedExecutor;
-
-    @Inject
-    ObjectMapper objectMapper;
+    ServletSupport servletSupport;
 
     @Inject
     Marshaller marshaller;
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        final String accept = req.getHeader(HttpHeaders.ACCEPT);
-        if (!StringUtils.isEmpty(accept) && !PRODUCES.stream().anyMatch(s -> accept.contains(s))) {
-            writeException(new NotSupportedException("The accept header value did not match the value in @Produces"), accept, resp);
+        final Optional<String> accept = servletSupport.accept(PRODUCES, req, resp);
+        if (accept.isEmpty()) {
             return;
         }
-
-        final String contentType = req.getContentType();
-        if (!StringUtils.isEmpty(contentType) && !CONSUMES.stream().anyMatch(s ->contentType.contains(s))) {
-            writeException(new NotSupportedException("The content-type header value did not match the value in @Consumes"), accept, resp);
+        final Optional<String> contentType =servletSupport.contentType(CONSUMES, accept.get(), req, resp);
+        if (contentType.isEmpty()) {
             return;
         }
         final String epcisVersion = Optional.ofNullable(req.getHeader("GS1-EPCIS-Version")).orElse("2.0.0");
 
         final String epcisDocumentSchema = req.getParameter("epcisDocumentSchema");
         try {
-            final List<ValidationError> validationErrors = schemaValidator.validate(req.getInputStream(), contentType, EPCISDocumentType.fromString(epcisDocumentSchema), EPCISVersion.fromString(epcisVersion).get())
+            final List<ValidationError> validationErrors = schemaValidator.validate(req.getInputStream(), contentType.get(), EPCISDocumentType.fromString(epcisDocumentSchema), EPCISVersion.fromString(epcisVersion).get())
                     .collect().asList().await().atMost(Duration.of(10, ChronoUnit.SECONDS));
             if (validationErrors.isEmpty()) {
-                resp.setHeader(HttpHeaders.CONTENT_TYPE, accept);
+                resp.setHeader(HttpHeaders.CONTENT_TYPE, accept.get());
                 resp.setStatus(HttpServletResponse.SC_OK);
                 return;
             }
-            resp.setHeader(HttpHeaders.CONTENT_TYPE, accept);
+            resp.setHeader(HttpHeaders.CONTENT_TYPE, accept.get());
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            if (MediaType.APPLICATION_XML.equals(accept)) {
+            if (MediaType.APPLICATION_XML.equals(accept.get())) {
                 final ValidationResult validationResult = new ValidationResult(validationErrors);
                 try {
                     marshaller.marshal(validationResult, resp.getOutputStream());
@@ -90,26 +85,11 @@ public class ValidationServlet extends HttpServlet {
                     throw new RuntimeException(e);
                 }
             } else {
-                objectMapper.writeValue(resp.getOutputStream(), validationErrors);
+                servletSupport.writeJson(resp, validationErrors);
             }
         } catch (Exception e) {
-            writeException(new InternalServerErrorException(), accept, resp);
+            servletSupport.writeException(new InternalServerErrorException(), accept.get(), resp);
         }
     }
 
-    private void writeException(WebApplicationException exception, String mediaType, HttpServletResponse resp) throws IOException {
-        resp.setStatus(exception.getResponse().getStatus());
-        if (!StringUtils.isEmpty(mediaType) && mediaType.contains("json")) {
-            resp.setHeader(HttpHeaders.CONTENT_TYPE, "application/problem+json");
-            objectMapper.writeValue(resp.getOutputStream(), ProblemResponseBody.fromException(exception));
-        } else {
-            final StringWriter stringWriter = new StringWriter();
-            try {
-                resp.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML);
-                marshaller.marshal(ProblemResponseBody.fromException(exception), resp.getOutputStream());
-            } catch (JAXBException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
 }
