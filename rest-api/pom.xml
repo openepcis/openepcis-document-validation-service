@@ -47,11 +47,10 @@
             <artifactId>microprofile-context-propagation-api</artifactId>
         </dependency>
 
-        <!-- Add constants as test dependencies -->
+        <!-- Add openepcis-test-resources as dependencies for OpenAPI Examples -->
         <dependency>
             <groupId>io.openepcis</groupId>
             <artifactId>openepcis-test-resources</artifactId>
-            <scope>test</scope>
         </dependency>
 
         <!-- Test dependencies for providing quarkus CDI and HTTP endpoint  -->

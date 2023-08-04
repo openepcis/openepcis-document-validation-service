@@ -1,9 +1,7 @@
 package io.openepcis.validation.servlet;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.openepcis.constants.EPCISDocumentType;
 import io.openepcis.constants.EPCISVersion;
-import io.openepcis.model.rest.ProblemResponseBody;
 import io.openepcis.model.rest.servlet.ServletSupport;
 import io.openepcis.validation.SchemaValidator;
 import io.openepcis.validation.model.ValidationError;
@@ -15,17 +13,12 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.InternalServerErrorException;
-import jakarta.ws.rs.NotSupportedException;
-import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
-import org.apache.commons.lang3.StringUtils;
-import org.eclipse.microprofile.context.ManagedExecutor;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;

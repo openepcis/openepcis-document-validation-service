@@ -3,6 +3,7 @@ package io.openepcis.validation.rest.resource;
 import io.openepcis.constants.EPCIS;
 import io.openepcis.constants.EPCISDocumentType;
 import io.openepcis.constants.EPCISVersion;
+import io.openepcis.model.epcis.EPCISDocument;
 import io.openepcis.model.rest.ProblemResponseBody;
 import io.openepcis.validation.SchemaValidator;
 import io.openepcis.validation.model.ValidationError;
@@ -19,8 +20,10 @@ import org.eclipse.microprofile.context.ManagedExecutor;
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.ExampleObject;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
@@ -99,7 +102,7 @@ public class ValidationResource {
                     @APIResponse(
                             responseCode = "415",
                             description =
-                                    "The client sent data in a format that is not supported " + "by the server.",
+                                    "The client sent data in a format that is not supported by the server",
                             content =
                             @Content(
                                     schema = @Schema(implementation = ProblemResponseBody.class),
@@ -112,11 +115,51 @@ public class ValidationResource {
             MediaType.APPLICATION_XML,
             "application/problem+json"
     })
+    @RequestBody(
+            description =
+                    "Validate EPCIS 2.0 JSON/JSON-LD/XML or EPCIS 1.2 XML document.",
+            content = {
+                    @Content(
+                            mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = EPCISDocument.class),
+                            examples = {
+                                    @ExampleObject(
+                                            name = "EPCIS 2.0 JSON document",
+                                            ref = "jsonDocument",
+                                            description = "Example EPCIS 2.0 document in JSON format.")
+                            }),
+                    @Content(
+                            mediaType = MediaType.APPLICATION_XML,
+                            schema = @Schema(implementation = EPCISDocument.class),
+                            examples = {
+                                    @ExampleObject(
+                                            name = "EPCIS 1.2 XML document",
+                                            ref = "xml1.2Document",
+                                            description = "Example EPCIS 1.2 document"),
+                                    @ExampleObject(
+                                            name = "EPCIS 2.0 XML document",
+                                            ref = "xmlDocument",
+                                            description = "Example EPCIS 2.0 document in XML format.")
+                            }),
+                    @Content(
+                            mediaType = "application/ld+json",
+                            schema = @Schema(implementation = EPCISDocument.class),
+                            examples = {
+                                    @ExampleObject(
+                                            name = "EPCIS 2.0 JSON document",
+                                            ref = "jsonDocument",
+                                            description = "Example EPCIS 2.0 document in JSON format.")
+                            })
+            })
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/ld+json"})
     public Uni<RestResponse<?>> validateEvents(
             @Parameter(
                     name = "GS1-EPCIS-Version",
                     description = "The EPCIS version",
+                    examples = {
+                            @ExampleObject(name = "EPCIS 2.0", value = "2.0.0"),
+                            @ExampleObject(name = "EPCIS 1.2", value = "1.2.0")
+                    },
                     in = ParameterIn.HEADER)
             @RestHeader(value = "GS1-EPCIS-Version")
             @DefaultValue("2.0.0")

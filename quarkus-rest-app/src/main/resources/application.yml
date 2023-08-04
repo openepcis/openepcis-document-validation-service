@@ -8,3 +8,6 @@ quarkus:
       origins: "/.*/"
     port: 9000
 
+mp:
+  openapi:
+    filter: "io.openepcis.resources.oas.EPCISExampleOASFilter"
