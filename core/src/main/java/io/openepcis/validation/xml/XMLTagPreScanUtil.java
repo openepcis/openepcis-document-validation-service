@@ -6,20 +6,21 @@ import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class PreScanUtil {
+public class XMLTagPreScanUtil {
 
   private static final String FIRST_TAG_REGEX = "<(?!\\?|\\!--)([\\S\\s]*?)>";
   private static final Pattern FIRST_TAG_PATTERN = Pattern.compile(FIRST_TAG_REGEX);
+  private static final int READ_LIMIT = 4096;
 
   public static final String scanFirstTag(final BufferedInputStream input) throws IOException {
-    input.mark(4096);
+    input.mark(READ_LIMIT);
     try  {
       final StringBuilder sb = new StringBuilder();
       final byte[] buffer = new byte[64];
       int len = -1;
       int bytesReceived = 0;
       Matcher matcher = FIRST_TAG_PATTERN.matcher(sb.toString());
-      while (!matcher.find(0) && bytesReceived < 2048 && (len = input.read(buffer)) != -1) {
+      while (!matcher.find(0) && bytesReceived < READ_LIMIT && (len = input.read(buffer)) != -1) {
         sb.append(new String(buffer, 0, len, StandardCharsets.UTF_8));
         bytesReceived += len;
         matcher = FIRST_TAG_PATTERN.matcher(sb.toString());

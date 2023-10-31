@@ -8,13 +8,11 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class EventModifier {
@@ -45,7 +43,7 @@ public class EventModifier {
   public InputStream modifyEvent(final InputStream input) {
     final BufferedInputStream captureInput = BufferedInputStream.class.isAssignableFrom(input.getClass())?(BufferedInputStream)input:new BufferedInputStream(input);
     try {
-      final String preScan = PreScanUtil.scanFirstTag(captureInput);
+      final String preScan = XMLTagPreScanUtil.scanFirstTag(captureInput);
       final PipedOutputStream pipedOutputStream = new PipedOutputStream();
       final PipedInputStream pipe = new PipedInputStream(pipedOutputStream);
       executorService.execute(
