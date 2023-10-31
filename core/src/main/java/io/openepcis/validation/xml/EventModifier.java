@@ -14,6 +14,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class EventModifier {
   private final ExecutorService executorService;
@@ -29,6 +31,8 @@ public class EventModifier {
 
   private static final String EPCIS_DOCUMENT_NAMESPACE = "urn:epcglobal:epcis:xsd:2";
   private static final String EPCIS = "epcis";
+  private static final String FIRST_TAG_REGEX = "<(?!\\?|\\!--)([\\S\\s]*?)>";
+  private static final Pattern FIRST_TAG_PATTERN = Pattern.compile(FIRST_TAG_REGEX);
 
   public EventModifier(final ExecutorService executorService) {
     this.executorService = executorService;
@@ -37,16 +41,13 @@ public class EventModifier {
   public EventModifier() {
     this(Executors.newWorkStealingPool());
   }
-  public InputStream modifyEvent(final InputStream captureInput) {
-    try {
-      final byte[] preScan = new byte[64];
-      final int len = captureInput.read(preScan);
-      final String preScanType = new String(preScan, StandardCharsets.UTF_8);
 
+  public InputStream modifyEvent(final InputStream input) {
+    final BufferedInputStream captureInput = BufferedInputStream.class.isAssignableFrom(input.getClass())?(BufferedInputStream)input:new BufferedInputStream(input);
+    try {
+      final String preScan = PreScanUtil.scanFirstTag(captureInput);
       final PipedOutputStream pipedOutputStream = new PipedOutputStream();
       final PipedInputStream pipe = new PipedInputStream(pipedOutputStream);
-      pipedOutputStream.write(preScan, 0, len);
-
       executorService.execute(
               () -> {
                 try {
@@ -59,9 +60,9 @@ public class EventModifier {
                 }
               });
 
-      if (preScanType.contains("epcis:EPCISDocument")) {
+      if (preScan.contains("EPCISDocument")) {
         return pipe;
-      } else if (EPCIS_EVENT_TYPES.stream().anyMatch(preScanType::contains)) {
+      } else if (EPCIS_EVENT_TYPES.stream().anyMatch(preScan::contains)) {
         return addDocumentWrapper(pipe); // method to add the epcis document wrapper to single event
       }
     } catch (Exception e) {
@@ -86,8 +87,7 @@ public class EventModifier {
     } catch (Exception e) {
       throw new SchemaValidationException(
           "Exception occurred during the copy of OutputStream to InputStream : "
-              + e.getMessage()
-              + e);
+              + e.getMessage(), e);
     }
   }
 
@@ -140,8 +140,7 @@ public class EventModifier {
     } catch (Exception e) {
       throw new SchemaValidationException(
           "Exception occurred during the addition of Document wrapper to event : "
-              + e.getMessage()
-              + e);
+              + e.getMessage(), e);
     }
   }
 

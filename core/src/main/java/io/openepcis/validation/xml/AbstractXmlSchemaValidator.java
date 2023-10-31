@@ -9,6 +9,7 @@ import org.xml.sax.SAXException;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -33,8 +34,7 @@ public abstract class AbstractXmlSchemaValidator implements Validator {
             } catch (Exception e) {
                 multiEmitter.fail(new SchemaValidationException(
                         "Exception occurred during the validation of Capture XML document/event against XSD : "
-                                + e.getMessage()
-                                + e));
+                                + e.getMessage(), e));
             }
         });
     }
