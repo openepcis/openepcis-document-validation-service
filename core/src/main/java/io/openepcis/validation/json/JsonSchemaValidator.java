@@ -33,7 +33,7 @@ public class JsonSchemaValidator implements Validator {
   private final ObjectMapper mapper = new ObjectMapper();
   private final JsonSchemaFactory validatorFactory =
       JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7))
-          .objectMapper(mapper)
+          .jsonMapper(mapper)
           .build();
   private final JsonSchema captureJsonSchema;
   private final JsonSchema queryJsonSchema;

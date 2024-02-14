@@ -36,8 +36,8 @@ public class JsonErrorHandler {
     for (final ValidationMessage errorMessage : messages) {
       final ValidationError errorFormat = new ValidationError();
       errorFormat.setType(errorMessage.getType());
-      errorFormat.setLine(errorMessage.getSchemaPath());
-      errorFormat.setColumn(errorMessage.getPath());
+      errorFormat.setLine(errorMessage.getSchemaLocation().toString());
+      errorFormat.setColumn(errorMessage.getInstanceLocation().toString());
       errorFormat.setMessage(errorMessage.getMessage());
       exceptions.add(errorFormat);
     }

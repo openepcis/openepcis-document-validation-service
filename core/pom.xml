@@ -54,7 +54,6 @@
         <dependency>
             <groupId>com.networknt</groupId>
             <artifactId>json-schema-validator</artifactId>
-            <version>1.0.74</version>
         </dependency>
 
         <!-- Dependency for validating the XSD Schema -->
