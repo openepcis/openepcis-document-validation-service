@@ -21,25 +21,27 @@ import com.networknt.schema.*;
 import io.openepcis.validation.Validator;
 import io.openepcis.validation.exception.SchemaValidationException;
 import io.openepcis.validation.model.ValidationError;
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import io.smallrye.mutiny.Multi;
+import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.InputStream;
 import java.util.Set;
 
 @Slf4j
+@RegisterForReflection(targets = JsonSchemaFactory.class)
 public class JsonSchemaValidator implements Validator {
 
-  private final ObjectMapper mapper = new ObjectMapper();
-  private final JsonSchemaFactory validatorFactory =
-      JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7))
-          .jsonMapper(mapper)
-          .build();
+  private final ObjectMapper mapper;
+  private final JsonSchemaFactory validatorFactory;
   private final JsonSchema captureJsonSchema;
   private final JsonSchema queryJsonSchema;
   private final JsonErrorHandler jsonErrorHandler;
 
-  public JsonSchemaValidator() {
+  public JsonSchemaValidator(final ObjectMapper objectMapper, final JsonSchemaFactory validatorFactory) {
+    this.mapper = objectMapper;
+    this.validatorFactory = validatorFactory;
     this.captureJsonSchema = loadSchema("/json-schema/modular-EPCIS-JSON-schema.json");
     this.queryJsonSchema = loadSchema("/json-schema/modified-query-schema.json");
     this.jsonErrorHandler = new JsonErrorHandler();

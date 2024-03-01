@@ -15,15 +15,37 @@
  */
 package io.openepcis.validation.rest.resource;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.JsonSchemaFactory;
+import com.networknt.schema.SpecVersion;
 import io.openepcis.validation.SchemaValidator;
+import io.quarkus.runtime.annotations.RegisterForReflection;
+import io.smallrye.common.annotation.Blocking;
+import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.enterprise.inject.Produces;
+import jakarta.inject.Inject;
 
+
+@RegisterForReflection
 public class SchemaValidatorProvider {
     @Produces
     @RequestScoped
-    public SchemaValidator schemaValidator() {
-        return new SchemaValidator();
+    public SchemaValidator schemaValidator(final JsonSchemaFactory factory) {
+        return new SchemaValidator(mapper, factory);
+    }
+
+    private final ObjectMapper mapper;
+
+    public SchemaValidatorProvider(final ObjectMapper mapper) {
+        this.mapper = mapper;
+    }
+
+    @Produces
+    public JsonSchemaFactory jsonSchemaFactory() {
+        return JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7))
+                .objectMapper(mapper)
+                .build();
     }
 
 }

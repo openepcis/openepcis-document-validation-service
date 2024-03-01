@@ -15,6 +15,9 @@
  */
 package io.openepcis.validation.test;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.JsonSchemaFactory;
+import com.networknt.schema.SpecVersion;
 import io.openepcis.constants.EPCISDocumentType;
 import io.openepcis.constants.EPCISVersion;
 import io.openepcis.validation.SchemaValidator;
@@ -30,7 +33,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class JsonDocumentTest {
 
-    private SchemaValidator validator = new SchemaValidator();;
+    private ObjectMapper mapper = new ObjectMapper();
+    private SchemaValidator validator = new SchemaValidator(mapper, JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7))
+            .objectMapper(mapper)
+            .build());
 
     @Test
     public void validateCaptureDocumentTest() {

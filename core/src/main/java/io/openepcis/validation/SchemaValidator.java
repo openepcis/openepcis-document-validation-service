@@ -15,6 +15,8 @@
  */
 package io.openepcis.validation;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.JsonSchemaFactory;
 import io.openepcis.constants.EPCISDocumentType;
 import io.openepcis.constants.EPCISVersion;
 import io.openepcis.validation.model.ValidationError;
@@ -29,8 +31,8 @@ public class SchemaValidator {
     private final JsonSchemaValidator jsonSchemaValidator;
     private final Xml20SchemaValidator xml20SchemaValidator;
     private final Xml12SchemaValidator xml12SchemaValidator;
-    public SchemaValidator() {
-        this.jsonSchemaValidator = new JsonSchemaValidator();
+    public SchemaValidator(final ObjectMapper mapper, final JsonSchemaFactory factory) {
+        this.jsonSchemaValidator = new JsonSchemaValidator(mapper, factory);
         this.xml20SchemaValidator = new Xml20SchemaValidator();
         this.xml12SchemaValidator = new Xml12SchemaValidator();
     }

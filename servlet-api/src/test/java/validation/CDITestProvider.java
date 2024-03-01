@@ -20,6 +20,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.networknt.schema.JsonSchemaFactory;
+import com.networknt.schema.SpecVersion;
 import io.openepcis.model.rest.ProblemResponseBody;
 import io.openepcis.validation.SchemaValidator;
 import io.openepcis.validation.model.xml.ValidationResult;
@@ -35,7 +37,10 @@ public class CDITestProvider {
     @Produces
     @RequestScoped
     public SchemaValidator schemaValidator() {
-        return new SchemaValidator();
+        final ObjectMapper mapper = new ObjectMapper();
+        return new SchemaValidator(mapper, JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7))
+                .objectMapper(mapper)
+                .build());
     }
 
 

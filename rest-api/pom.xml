@@ -30,6 +30,11 @@
     <packaging>jar</packaging>
 
     <dependencies>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-core</artifactId>
+        </dependency>
+
         <!-- OpenEPCIS dependency for classes and data-->
         <dependency>
             <groupId>io.openepcis</groupId>
