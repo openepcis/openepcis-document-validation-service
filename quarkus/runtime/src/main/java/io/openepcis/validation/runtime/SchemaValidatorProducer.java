@@ -13,22 +13,21 @@
  *     See the License for the specific language governing permissions and
  *     limitations under the License.
  */
-package io.openepcis.validation.rest.resource;
+package io.openepcis.validation.runtime;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SpecVersion;
 import io.openepcis.validation.SchemaValidator;
 import io.quarkus.runtime.annotations.RegisterForReflection;
-import io.smallrye.common.annotation.Blocking;
-import io.smallrye.mutiny.Uni;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.enterprise.inject.Produces;
-import jakarta.inject.Inject;
 
 
 @RegisterForReflection
-public class SchemaValidatorProvider {
+@ApplicationScoped
+public class SchemaValidatorProducer {
     @Produces
     @RequestScoped
     public SchemaValidator schemaValidator(final JsonSchemaFactory factory) {
@@ -37,7 +36,7 @@ public class SchemaValidatorProvider {
 
     private final ObjectMapper mapper;
 
-    public SchemaValidatorProvider(final ObjectMapper mapper) {
+    public SchemaValidatorProducer(final ObjectMapper mapper) {
         this.mapper = mapper;
     }
 

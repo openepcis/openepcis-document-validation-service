@@ -52,12 +52,17 @@
             <artifactId>openepcis-model-epcis</artifactId>
             <scope>compile</scope>
         </dependency>
-
         <dependency>
             <groupId>jakarta.ws.rs</groupId>
             <artifactId>jakarta.ws.rs-api</artifactId>
             <scope>compile</scope>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/jakarta.servlet/jakarta.servlet-api -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>io.quarkus.resteasy.reactive</groupId>
             <artifactId>resteasy-reactive-jackson</artifactId>
@@ -68,11 +73,12 @@
             <artifactId>jakarta.validation-api</artifactId>
             <scope>compile</scope>
         </dependency>
+
         <dependency>
             <groupId>org.eclipse.persistence</groupId>
             <artifactId>org.eclipse.persistence.moxy</artifactId>
-            <scope>compile</scope>
         </dependency>
+
         <!-- Apache IO package for String manipulation String <-> InputStream -->
         <dependency>
             <groupId>commons-io</groupId>

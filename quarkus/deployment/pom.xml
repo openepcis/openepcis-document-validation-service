@@ -1,7 +1,7 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright 2022-2023 benelog GmbH & Co. KG
+    Copyright 2022-2024 benelog GmbH & Co. KG
 
         Licensed under the Apache License, Version 2.0 (the "License");
         you may not use this file except in compliance with the License.
@@ -21,13 +21,16 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>io.openepcis</groupId>
-        <artifactId>openepcis-document-validation-parent</artifactId>
+        <groupId>io.openepcis.quarkus</groupId>
+        <artifactId>quarkus-document-validation-service-parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>openepcis-document-validation-service</artifactId>
-    <packaging>jar</packaging>
 
+    <artifactId>quarkus-document-validation-service-deployment</artifactId>
+    <packaging>jar</packaging>
+    <name>quarkus-document-validation-service-deployment</name>
+    <description>Quarkus Deployment for OpenEPCIS Document Validation Service</description>
     <url>https://github.com/openepcis/openepcis-document-validation-service</url>
 
     <licenses>
@@ -55,64 +58,59 @@
     <dependencies>
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-core</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.openepcis</groupId>
-            <artifactId>openepcis-epcis-constants</artifactId>
-            <scope>compile</scope>
-        </dependency>
-
-        <!--
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-buffer</artifactId>
-        </dependency>
-        -->
-        <!-- lombok Dependency -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
-
-        <!-- Dependency for validating the JSON Schema -->
-        <!-- Jackson ObjectMapper dependency-->
-        <dependency>
-            <groupId>com.networknt</groupId>
-            <artifactId>json-schema-validator</artifactId>
+            <artifactId>quarkus-smallrye-health-deployment</artifactId>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-jackson</artifactId>
+            <artifactId>quarkus-jackson-deployment</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-collections4</artifactId>
+            <groupId>io.openepcis.quarkus</groupId>
+            <artifactId>quarkus-document-validation-service</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.openepcis.quarkus</groupId>
+            <artifactId>quarkus-openepcis-model-deployment</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.openepcis.quarkus</groupId>
+            <artifactId>quarkus-test-resources-deployment</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>jakarta.xml.bind</groupId>
-            <artifactId>jakarta.xml.bind-api</artifactId>
-        </dependency>
 
-        <!-- Dependency for testing the application -->
+        <!-- Test dependencies -->
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-junit5-internal</artifactId>
             <scope>test</scope>
         </dependency>
 
     </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>io.quarkus</groupId>
+                            <artifactId>quarkus-extension-processor</artifactId>
+                            <version>${quarkus.platform.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <systemPropertyVariables>
+                        <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

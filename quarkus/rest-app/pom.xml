@@ -21,17 +21,27 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>io.openepcis</groupId>
-        <artifactId>openepcis-document-validation-parent</artifactId>
+        <groupId>io.openepcis.quarkus</groupId>
+        <artifactId>quarkus-document-validation-service-parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
-    <groupId>io.openepcis</groupId>
-    <artifactId>openepcis-document-validation-quarkus-rest-app</artifactId>
+    <artifactId>quarkus-document-validation-quarkus-rest-app</artifactId>
     <packaging>jar</packaging>
     <dependencies>
         <dependency>
             <groupId>io.openepcis</groupId>
             <artifactId>openepcis-document-validation-rest-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.openepcis.quarkus</groupId>
+            <artifactId>quarkus-openepcis-model</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.openepcis.quarkus</groupId>
+            <artifactId>quarkus-document-validation-service</artifactId>
         </dependency>
 
         <!-- Quarkus Service related dependency-->
