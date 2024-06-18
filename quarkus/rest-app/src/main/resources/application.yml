@@ -8,6 +8,11 @@ quarkus:
       origins: "/.*/"
     port: 9000
 
+  locales: en
+  default-locale: en-US
+  banner:
+    path: "openepcis-banner.txt"
+
   ssl:
     native: true
 
