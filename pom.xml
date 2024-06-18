@@ -26,7 +26,7 @@
   </parent>
   <artifactId>openepcis-document-validation-parent</artifactId>
   <packaging>pom</packaging>
-
+  <description>Service to validate EPCIS 2.0 documents and identifiers ensuring complicante with EPCIS standards.</description>
   <url>https://github.com/openepcis/openepcis-document-validation-service</url>
 
   <licenses>

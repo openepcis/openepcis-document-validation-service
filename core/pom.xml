@@ -27,7 +27,7 @@
     </parent>
     <artifactId>openepcis-document-validation-service</artifactId>
     <packaging>jar</packaging>
-
+    <description>Core Library to validate EPCIS 2.0 documents and identifiers.</description>
     <url>https://github.com/openepcis/openepcis-document-validation-service</url>
 
     <licenses>
