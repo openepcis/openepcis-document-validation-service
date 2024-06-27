@@ -47,8 +47,8 @@ public class XmlErrorHandler implements ErrorHandler {
     final ValidationError errorFormat = new ValidationError();
     errorFormat.setType("required");
     errorFormat.setLine(Integer.toString(e.getLineNumber()));
-    errorFormat.setColumn(Integer.toString(e.getColumnNumber()));
-    errorFormat.setMessage(e.getMessage());
+    errorFormat.setLocation(Integer.toString(e.getColumnNumber()));
+    errorFormat.setMessage(errorFormat.filterErrorMessage(e.getMessage()));
     this.exceptions.add(errorFormat);
   }
 }
