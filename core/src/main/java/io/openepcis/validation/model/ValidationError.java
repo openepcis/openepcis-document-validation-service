@@ -27,7 +27,7 @@ import lombok.Data;
         propOrder = {
         "type",
         "line",
-        "column",
+        "location",
         "message"
 })
 public class ValidationError {
@@ -39,8 +39,14 @@ public class ValidationError {
   private String line;
 
   @XmlElement
-  private String column;
+  private String location;
 
   @XmlElement
   private String message;
+
+  public String filterErrorMessage(String message) {
+    String[] messageParts = message.split(":", 2);
+    return messageParts.length > 1 ? messageParts[1].trim() : message;
+  }
+
 }
