@@ -1,0 +1,95 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "gs1:CertificationDetailsWrapper": {
+      "type": "object",
+      "properties": {
+        "gs1:CertificationDetails": {
+          "$ref": "#/definitions/gs1:CertificationDetails"
+        }
+      },
+      "required": [
+        "gs1:CertificationDetails"
+      ]
+    },
+    "gs1:CertificationDetails": {
+      "type": "object",
+      "properties": {
+        "gs1:certificationAgency": {
+          "type": "string"
+        },
+        "gs1:certificationAgencyURL": {
+          "type": "object"
+        },
+        "gs1:certificationAuditDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "gs1:certificationEndDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "gs1:certificationIdentification": {
+          "type": "string"
+        },
+        "gs1:certificationStandard": {
+          "type": "string"
+        },
+        "gs1:certificationStartDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "gs1:certificationStatement": {
+          "type": "string"
+        },
+        "gs1:certificationStatus": {
+          "type": "string",
+          "enum": [
+            "ACTIVE",
+            "INACTIVE"
+          ]
+        },
+        "gs1:certificationSubject": {
+          "type": "string"
+        },
+        "gs1:certificationType": {
+          "type": "string"
+        },
+        "gs1:certificationURI": {
+          "type": "string",
+          "format": "uri"
+        },
+        "gs1:certificationValue": {
+          "type": "string"
+        },
+        "gs1:initialCertificationDate": {
+          "type": "string",
+          "format": "date"
+        }
+      },
+      "propertyNames": {
+        "anyOf": [
+          {
+            "type": "string",
+            "enum": [
+              "gs1:certificationAgency",
+              "gs1:certificationAgencyURL",
+              "gs1:certificationAuditDate",
+              "gs1:certificationEndDate",
+              "gs1:certificationIdentification",
+              "gs1:certificationStandard",
+              "gs1:certificationStartDate",
+              "gs1:certificationStatement",
+              "gs1:certificationStatus",
+              "gs1:certificationSubject",
+              "gs1:certificationType",
+              "gs1:certificationURI",
+              "gs1:certificationValue",
+              "gs1:initialCertificationDate"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
