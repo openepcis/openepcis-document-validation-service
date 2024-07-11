@@ -113,6 +113,32 @@
             <artifactId>commons-io</artifactId>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
+
+    <!-- Download the epcis-json-schema file from remote during build and place it in resources/json-schema path -->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.googlecode.maven-download-plugin</groupId>
+                <artifactId>download-maven-plugin</artifactId>
+                <version>1.9.0</version>
+                <executions>
+                    <execution>
+                        <!-- the wget goal actually binds itself to this phase by default -->
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>wget</goal>
+                        </goals>
+                        <configuration>
+                            <uri>https://ref.gs1.org/standards/epcis/epcis-json-schema.json</uri>
+                            <outputFileName>epcis-json-schema.json</outputFileName>
+                            <outputDirectory>${project.basedir}/src/main/resources/json-schema</outputDirectory>
+                            <overwrite>true</overwrite>
+                            <skipCache>true</skipCache>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

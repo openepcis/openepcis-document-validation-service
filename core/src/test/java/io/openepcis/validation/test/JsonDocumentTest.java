@@ -47,6 +47,19 @@ public class JsonDocumentTest {
     }
 
     @Test
+    public void validateCaptureDocumentWithCertificationTest() {
+        final InputStream inputStream = getClass().getResourceAsStream("/json/CaptureDocumentWithCertification.json");
+        final Multi<ValidationError> jsonCaptureErrors =
+                validator.validate(inputStream, "application/json", EPCISDocumentType.CAPTURE, EPCISVersion.VERSION_2_0_0);
+        assertTrue(jsonCaptureErrors.subscribe().asStream().toList().size() > 0);
+        /*
+        jsonCaptureErrors.subscribe().with(error -> {
+            System.out.println(error);
+        });
+         */
+    }
+
+    @Test
     public void validateQueryDocumentWithEventTypeTest() {
         final InputStream inputStream = getClass().getResourceAsStream("/json/QueryDocumentWithEventType.json");
         final Multi<ValidationError> jsonQueryErrors =
