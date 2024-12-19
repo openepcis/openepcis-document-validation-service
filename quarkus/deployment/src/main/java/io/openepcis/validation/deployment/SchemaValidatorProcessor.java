@@ -42,7 +42,7 @@ public class SchemaValidatorProcessor {
   @BuildStep
   HealthBuildItem addHealthCheck(OpenEPCISBuildTimeConfig buildTimeConfig) {
     return new HealthBuildItem(SchemaValidatorHealthCheck.class.getName(),
-            buildTimeConfig.healthEnabled);
+            buildTimeConfig.healthEnabled());
   }
 
   @BuildStep
