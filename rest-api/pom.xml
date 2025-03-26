@@ -34,6 +34,10 @@
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.quarkus.resteasy.reactive</groupId>
+            <artifactId>resteasy-reactive-common</artifactId>
+        </dependency>
 
         <!-- OpenEPCIS dependency for classes and data-->
         <dependency>
@@ -63,11 +67,6 @@
             <artifactId>jakarta.servlet-api</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>io.quarkus.resteasy.reactive</groupId>
-            <artifactId>resteasy-reactive-jackson</artifactId>
-            <scope>compile</scope>
-        </dependency>
         <dependency>
             <groupId>jakarta.validation</groupId>
             <artifactId>jakarta.validation-api</artifactId>
@@ -108,12 +107,12 @@
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-resteasy-reactive-jackson</artifactId>
+            <artifactId>quarkus-rest-jackson</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-resteasy-reactive-jaxb</artifactId>
+            <artifactId>quarkus-rest-jaxb</artifactId>
             <scope>test</scope>
         </dependency>
 

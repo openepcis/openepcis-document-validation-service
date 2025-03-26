@@ -16,8 +16,6 @@
 package io.openepcis.validation.xml;
 
 import io.openepcis.validation.exception.SchemaValidationException;
-
-import javax.xml.stream.*;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
@@ -29,6 +27,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
+import javax.xml.stream.*;
 
 public class EventModifier {
   private final ExecutorService executorService;
@@ -56,22 +55,25 @@ public class EventModifier {
   }
 
   public InputStream modifyEvent(final InputStream input) {
-    final BufferedInputStream captureInput = BufferedInputStream.class.isAssignableFrom(input.getClass())?(BufferedInputStream)input:new BufferedInputStream(input);
+    final BufferedInputStream captureInput =
+        BufferedInputStream.class.isAssignableFrom(input.getClass())
+            ? (BufferedInputStream) input
+            : new BufferedInputStream(input);
     try {
       final String preScan = XMLTagPreScanUtil.scanFirstTag(captureInput);
       final PipedOutputStream pipedOutputStream = new PipedOutputStream();
       final PipedInputStream pipe = new PipedInputStream(pipedOutputStream);
       executorService.execute(
-              () -> {
-                try {
-                  copy(captureInput, pipedOutputStream);
-                } catch (Exception e) {
-                  throw new SchemaValidationException(
-                          "Exception occurred during reading of schema version from input document : "
-                                  + e.getMessage(),
-                          e);
-                }
-              });
+          () -> {
+            try {
+              copy(captureInput, pipedOutputStream);
+            } catch (Exception e) {
+              throw new SchemaValidationException(
+                  "Exception occurred during reading of schema version from input document : "
+                      + e.getMessage(),
+                  e);
+            }
+          });
 
       if (preScan.contains("EPCISDocument")) {
         return pipe;
@@ -99,8 +101,8 @@ public class EventModifier {
       }
     } catch (Exception e) {
       throw new SchemaValidationException(
-          "Exception occurred during the copy of OutputStream to InputStream : "
-              + e.getMessage(), e);
+          "Exception occurred during the copy of OutputStream to InputStream : " + e.getMessage(),
+          e);
     }
   }
 
@@ -152,8 +154,8 @@ public class EventModifier {
       return pipe;
     } catch (Exception e) {
       throw new SchemaValidationException(
-          "Exception occurred during the addition of Document wrapper to event : "
-              + e.getMessage(), e);
+          "Exception occurred during the addition of Document wrapper to event : " + e.getMessage(),
+          e);
     }
   }
 

@@ -28,7 +28,6 @@ import io.quarkus.smallrye.health.deployment.spi.HealthBuildItem;
 public class SchemaValidatorProcessor {
   private static final String FEATURE = "openepcis-schema-validator";
 
-
   @BuildStep
   FeatureBuildItem feature() {
     return new FeatureBuildItem(FEATURE);
@@ -41,21 +40,19 @@ public class SchemaValidatorProcessor {
 
   @BuildStep
   HealthBuildItem addHealthCheck(OpenEPCISBuildTimeConfig buildTimeConfig) {
-    return new HealthBuildItem(SchemaValidatorHealthCheck.class.getName(),
-            buildTimeConfig.healthEnabled());
+    return new HealthBuildItem(
+        SchemaValidatorHealthCheck.class.getName(), buildTimeConfig.healthEnabled());
   }
 
   @BuildStep
   NativeImageResourcePatternsBuildItem addNativeImageResourceBuildItem() {
-    return NativeImageResourcePatternsBuildItem.builder().includeGlobs(
-            "json-schema/*",
-            "xsd/**/*"
-    ).build();
+    return NativeImageResourcePatternsBuildItem.builder()
+        .includeGlobs("json-schema/*", "xsd/**/*")
+        .build();
   }
 
   @BuildStep
   NativeImageSystemPropertyBuildItem addNativeImageSystemPropertyBuildItem() {
     return new NativeImageSystemPropertyBuildItem("EnableURLProtocols", "http,https");
   }
-
 }

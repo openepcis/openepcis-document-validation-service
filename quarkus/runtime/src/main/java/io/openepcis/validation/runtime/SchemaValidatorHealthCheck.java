@@ -26,24 +26,25 @@ import org.eclipse.microprofile.health.Readiness;
 @ApplicationScoped
 public class SchemaValidatorHealthCheck implements HealthCheck {
 
-    private final SchemaValidator schemaValidator;
+  private final SchemaValidator schemaValidator;
 
-    public SchemaValidatorHealthCheck(final SchemaValidator schemaValidator) {
-        this.schemaValidator = schemaValidator;
-    }
+  public SchemaValidatorHealthCheck(final SchemaValidator schemaValidator) {
+    this.schemaValidator = schemaValidator;
+  }
 
-    @Override
-    public HealthCheckResponse call() {
-        HealthCheckResponseBuilder builder = HealthCheckResponse.named("OpenEPCIS SchemaValidator health check").up();
-        try {
-            if (SchemaValidator.class.isAssignableFrom(schemaValidator.getClass())) {
-                builder.up().withData("schemaValidator", schemaValidator.getClass().getName());
-            } else {
-                builder.down().withData("schemaValidator", schemaValidator.getClass().getName());
-            }
-        } catch (Exception e) {
-            return builder.down().withData("reason", e.getMessage()).build();
-        }
-        return builder.build();
+  @Override
+  public HealthCheckResponse call() {
+    HealthCheckResponseBuilder builder =
+        HealthCheckResponse.named("OpenEPCIS SchemaValidator health check").up();
+    try {
+      if (SchemaValidator.class.isAssignableFrom(schemaValidator.getClass())) {
+        builder.up().withData("schemaValidator", schemaValidator.getClass().getName());
+      } else {
+        builder.down().withData("schemaValidator", schemaValidator.getClass().getName());
+      }
+    } catch (Exception e) {
+      return builder.down().withData("reason", e.getMessage()).build();
     }
+    return builder.build();
+  }
 }

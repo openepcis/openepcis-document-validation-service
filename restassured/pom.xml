@@ -45,12 +45,12 @@
         <!-- Test dependencies for providing quarkus CDI and HTTP endpoint  -->
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-resteasy-reactive-jackson</artifactId>
+            <artifactId>quarkus-rest-jackson</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-resteasy-reactive-jaxb</artifactId>
+            <artifactId>quarkus-rest-jaxb</artifactId>
             <scope>provided</scope>
         </dependency>
 

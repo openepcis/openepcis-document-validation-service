@@ -29,7 +29,7 @@ public class XMLTagPreScanUtil {
 
   public static final String scanFirstTag(final BufferedInputStream input) throws IOException {
     input.mark(READ_LIMIT);
-    try  {
+    try {
       final StringBuilder sb = new StringBuilder();
       final byte[] buffer = new byte[64];
       int len = -1;
@@ -48,5 +48,4 @@ public class XMLTagPreScanUtil {
       input.reset();
     }
   }
-
 }

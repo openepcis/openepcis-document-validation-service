@@ -15,11 +15,10 @@
  */
 package io.openepcis.validation.xml.resolver;
 
-import org.w3c.dom.ls.LSInput;
-import org.w3c.dom.ls.LSResourceResolver;
-
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import org.w3c.dom.ls.LSInput;
+import org.w3c.dom.ls.LSResourceResolver;
 
 public class ClasspathResourceResolver implements LSResourceResolver {
 
@@ -37,7 +36,7 @@ public class ClasspathResourceResolver implements LSResourceResolver {
       final String systemId,
       final String baseURI) {
     final LSInputImpl input = new LSInputImpl();
-    final String path = base_path+"/" + systemId;
+    final String path = base_path + "/" + systemId;
     final InputStream stream = getClass().getClassLoader().getResourceAsStream(path);
 
     input.setPublicId(publicId);

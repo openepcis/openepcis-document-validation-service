@@ -34,38 +34,39 @@ import jakarta.xml.bind.Marshaller;
 
 public class CDITestProvider {
 
-    @Produces
-    @RequestScoped
-    public SchemaValidator schemaValidator() {
-        final ObjectMapper mapper = new ObjectMapper();
-        return new SchemaValidator(mapper, JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7))
-                .objectMapper(mapper)
-                .build());
-    }
+  @Produces
+  @RequestScoped
+  public SchemaValidator schemaValidator() {
+    final ObjectMapper mapper = new ObjectMapper();
+    return new SchemaValidator(
+        mapper,
+        JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7))
+            .jsonMapper(mapper)
+            .build());
+  }
 
+  @Produces
+  @Singleton
+  ObjectMapper objectMapper() {
+    final ObjectMapper mapper =
+        new ObjectMapper()
+            .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+            .registerModule(new JavaTimeModule())
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    return mapper;
+  }
 
-    @Produces
-    @Singleton
-    ObjectMapper objectMapper() {
-        final ObjectMapper mapper =
-                new ObjectMapper()
-                        .setSerializationInclusion(JsonInclude.Include.NON_NULL)
-                        .registerModule(new JavaTimeModule())
-                        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                        .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        return mapper;
+  @Produces
+  @Singleton
+  Marshaller marhaller() {
+    try {
+      final JAXBContext ctx =
+          JAXBContext.newInstance(ValidationResult.class, ProblemResponseBody.class);
+      Log.info("created Validation Test JAXBContext : " + ctx.getClass().getName());
+      return ctx.createMarshaller();
+    } catch (Exception e) {
+      throw new RuntimeException(e.getMessage(), e);
     }
-
-    @Produces
-    @Singleton
-    Marshaller marhaller() {
-        try {
-            final JAXBContext ctx =
-                    JAXBContext.newInstance(ValidationResult.class, ProblemResponseBody.class);
-            Log.info("created Validation Test JAXBContext : " + ctx.getClass().getName());
-            return ctx.createMarshaller();
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-    }
+  }
 }

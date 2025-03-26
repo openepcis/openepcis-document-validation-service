@@ -15,12 +15,11 @@
  */
 package io.openepcis.validation.xml.resolver;
 
+import java.io.InputStream;
+import java.io.Reader;
 import lombok.Getter;
 import lombok.Setter;
 import org.w3c.dom.ls.LSInput;
-
-import java.io.InputStream;
-import java.io.Reader;
 
 @Getter
 @Setter

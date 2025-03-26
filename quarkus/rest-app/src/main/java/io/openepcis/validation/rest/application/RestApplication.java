@@ -23,15 +23,13 @@ import org.eclipse.microprofile.openapi.annotations.info.Info;
 import org.eclipse.microprofile.openapi.annotations.info.License;
 
 @OpenAPIDefinition(
-        info =
+    info =
         @Info(
-                title = "OpenEPCIS Event Validation REST API",
-                description = "Validate for EPCIS documents in XML/JSON format.",
-                version = "1.0.0",
-                contact = @Contact(name = "OpenEPCIS", email = "info@openepcis.io"),
-                license =
+            title = "OpenEPCIS Event Validation REST API",
+            description = "Validate for EPCIS documents in XML/JSON format.",
+            version = "1.0.0",
+            contact = @Contact(name = "OpenEPCIS", email = "info@openepcis.io"),
+            license =
                 @License(name = "Apache 2.0", url = "http://www.apache.org/licenses/LICENSE-2.0")))
 @ApplicationPath("/")
-public class RestApplication extends Application {
-
-}
+public class RestApplication extends Application {}

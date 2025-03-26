@@ -15,32 +15,23 @@
  */
 package io.openepcis.validation.rest.resource.test;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SpecVersion;
-import io.openepcis.model.rest.ProblemResponseBody;
 import io.openepcis.validation.SchemaValidator;
-import io.openepcis.validation.model.xml.ValidationResult;
-import io.quarkus.logging.Log;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.enterprise.inject.Produces;
-import jakarta.inject.Singleton;
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.Marshaller;
 
 public class CDITestProvider {
 
-    @Produces
-    @RequestScoped
-    public SchemaValidator schemaValidator() {
-        final ObjectMapper mapper = new ObjectMapper();
-        return new SchemaValidator(mapper, JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7))
-                .objectMapper(mapper)
-                .build());
-    }
-
+  @Produces
+  @RequestScoped
+  public SchemaValidator schemaValidator() {
+    final ObjectMapper mapper = new ObjectMapper();
+    return new SchemaValidator(
+        mapper,
+        JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7))
+            .jsonMapper(mapper)
+            .build());
+  }
 }

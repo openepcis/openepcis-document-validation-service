@@ -22,31 +22,22 @@ import jakarta.xml.bind.annotation.XmlType;
 import lombok.Data;
 
 @Data
-@XmlRootElement(name ="ValidationError")
-@XmlType(name ="ValidationError",
-        propOrder = {
-        "type",
-        "line",
-        "location",
-        "message"
-})
+@XmlRootElement(name = "ValidationError")
+@XmlType(
+    name = "ValidationError",
+    propOrder = {"type", "line", "location", "message"})
 public class ValidationError {
 
-  @XmlAttribute
-  private String type;
+  @XmlAttribute private String type;
 
-  @XmlElement
-  private String line;
+  @XmlElement private String line;
 
-  @XmlElement
-  private String location;
+  @XmlElement private String location;
 
-  @XmlElement
-  private String message;
+  @XmlElement private String message;
 
   public String filterErrorMessage(String message) {
     String[] messageParts = message.split(":", 2);
     return messageParts.length > 1 ? messageParts[1].trim() : message;
   }
-
 }

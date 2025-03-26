@@ -17,7 +17,8 @@ package io.openepcis.validation.rest.resource;
 
 public interface ResponseBodyExamples {
 
-    String RESPONSE_400_VALIDATION_ERRORS = """
+  String RESPONSE_400_VALIDATION_ERRORS =
+      """
             [
               {
                 "type": "required",
@@ -33,7 +34,8 @@ public interface ResponseBodyExamples {
               }
             ]""";
 
-    String RESPONSE_400_VALIDATION_ERRORS_XML = """
+  String RESPONSE_400_VALIDATION_ERRORS_XML =
+      """
             <ValidationResult>
             	<errors>
             		<ValidationError type="required">
@@ -48,36 +50,36 @@ public interface ResponseBodyExamples {
             		</ValidationError>
             	</errors>
             </ValidationResult>""";
-    String RESPONSE_401_UNAUTHORIZED_REQUEST =
-            """
+  String RESPONSE_401_UNAUTHORIZED_REQUEST =
+      """
                     {
                       "type": "epcisException:SecurityException",
                       "title": "Unauthorised request",
                       "status": 401
                     }""";
-    String RESPONSE_403_CLIENT_UNAUTHORIZED =
-            """
+  String RESPONSE_403_CLIENT_UNAUTHORIZED =
+      """
                     {
                       "type": "epcisException:SecurityException",
                       "title": "Access to resource forbidden",
                       "status": 403
                     }""";
-    String RESPONSE_406_NOT_ACCEPTABLE =
-            """
+  String RESPONSE_406_NOT_ACCEPTABLE =
+      """
                     {
                       "type": "epcisException:NotAcceptableException",
                       "title": "Conflicting request and response headers",
                       "status": 406
                     }""";
-    String RESPONSE_415_UNSUPPORTED_MEDIA_TYPE =
-            """
+  String RESPONSE_415_UNSUPPORTED_MEDIA_TYPE =
+      """
                     {
                       "type": "epcisException:UnsupportedMediaTypeException",
                       "title": "Unsupported Media Type",
                       "status": 415
                     }""";
-    String RESPONSE_500_IMPLEMENTATION_EXCEPTION =
-            """
+  String RESPONSE_500_IMPLEMENTATION_EXCEPTION =
+      """
                     {
                       "type": "epcisException:ImplementationException",
                       "title": "A server-side error occurred",

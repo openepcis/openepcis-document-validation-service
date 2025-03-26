@@ -24,27 +24,25 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.enterprise.inject.Produces;
 
-
 @RegisterForReflection
 @ApplicationScoped
 public class SchemaValidatorProducer {
-    @Produces
-    @RequestScoped
-    public SchemaValidator schemaValidator(final JsonSchemaFactory factory) {
-        return new SchemaValidator(mapper, factory);
-    }
+  @Produces
+  @RequestScoped
+  public SchemaValidator schemaValidator(final JsonSchemaFactory factory) {
+    return new SchemaValidator(mapper, factory);
+  }
 
-    private final ObjectMapper mapper;
+  private final ObjectMapper mapper;
 
-    public SchemaValidatorProducer(final ObjectMapper mapper) {
-        this.mapper = mapper;
-    }
+  public SchemaValidatorProducer(final ObjectMapper mapper) {
+    this.mapper = mapper;
+  }
 
-    @Produces
-    public JsonSchemaFactory jsonSchemaFactory() {
-        return JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7))
-                .objectMapper(mapper)
-                .build();
-    }
-
+  @Produces
+  public JsonSchemaFactory jsonSchemaFactory() {
+    return JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7))
+        .jsonMapper(mapper)
+        .build();
+  }
 }

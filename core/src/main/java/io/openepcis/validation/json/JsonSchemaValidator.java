@@ -23,11 +23,9 @@ import io.openepcis.validation.exception.SchemaValidationException;
 import io.openepcis.validation.model.ValidationError;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import io.smallrye.mutiny.Multi;
-import jakarta.inject.Inject;
-import lombok.extern.slf4j.Slf4j;
-
 import java.io.InputStream;
 import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RegisterForReflection(targets = JsonSchemaFactory.class)
@@ -39,7 +37,8 @@ public class JsonSchemaValidator implements Validator {
   private final JsonSchema queryJsonSchema;
   private final JsonErrorHandler jsonErrorHandler;
 
-  public JsonSchemaValidator(final ObjectMapper objectMapper, final JsonSchemaFactory validatorFactory) {
+  public JsonSchemaValidator(
+      final ObjectMapper objectMapper, final JsonSchemaFactory validatorFactory) {
     this.mapper = objectMapper;
     this.validatorFactory = validatorFactory;
     this.captureJsonSchema = loadSchema("/json-schema/modular-EPCIS-JSON-schema.json");
@@ -54,48 +53,52 @@ public class JsonSchemaValidator implements Validator {
   @Override
   public Multi<ValidationError> validateAgainstCaptureSchema(final InputStream epcisInputData)
       throws SchemaValidationException {
-    return Multi.createFrom().emitter(multiEmitter -> {
-      try {
-        final Set<ValidationMessage> captureErrors =
-                captureJsonSchema.validate(mapper.readValue(epcisInputData, JsonNode.class));
+    return Multi.createFrom()
+        .emitter(
+            multiEmitter -> {
+              try {
+                final Set<ValidationMessage> captureErrors =
+                    captureJsonSchema.validate(mapper.readValue(epcisInputData, JsonNode.class));
 
-        // If there are any validation errors then throw the errors
-        if (!captureErrors.isEmpty()) {
-          jsonErrorHandler.jsonValidationFormat(captureErrors);
-        }
+                // If there are any validation errors then throw the errors
+                if (!captureErrors.isEmpty()) {
+                  jsonErrorHandler.jsonValidationFormat(captureErrors);
+                }
 
-        this.jsonErrorHandler.getExceptions().stream().forEach(multiEmitter::emit);
-        multiEmitter.complete();
-      } catch (Exception exception) {
-        multiEmitter.fail(
-        new SchemaValidationException(
-                "Exception occurred during validation against EPCIS JSON Capture schema : "
-                        + exception.getMessage()));
-      }
-    });
+                this.jsonErrorHandler.getExceptions().stream().forEach(multiEmitter::emit);
+                multiEmitter.complete();
+              } catch (Exception exception) {
+                multiEmitter.fail(
+                    new SchemaValidationException(
+                        "Exception occurred during validation against EPCIS JSON Capture schema : "
+                            + exception.getMessage()));
+              }
+            });
   }
 
   @Override
   public Multi<ValidationError> validateAgainstQuerySchema(final InputStream document)
       throws SchemaValidationException {
-    return Multi.createFrom().emitter(multiEmitter -> {
-      try {
-        final Set<ValidationMessage> queryErrors =
-                queryJsonSchema.validate(mapper.readValue(document, JsonNode.class));
+    return Multi.createFrom()
+        .emitter(
+            multiEmitter -> {
+              try {
+                final Set<ValidationMessage> queryErrors =
+                    queryJsonSchema.validate(mapper.readValue(document, JsonNode.class));
 
-        // If there are any validation errors then throw the errors
-        if (!queryErrors.isEmpty()) {
-          jsonErrorHandler.jsonValidationFormat(queryErrors);
-        }
+                // If there are any validation errors then throw the errors
+                if (!queryErrors.isEmpty()) {
+                  jsonErrorHandler.jsonValidationFormat(queryErrors);
+                }
 
-        this.jsonErrorHandler.getExceptions().stream().forEach(multiEmitter::emit);
-        multiEmitter.complete();
-      } catch (Exception exception) {
-        multiEmitter.fail(new SchemaValidationException(
-                "Exception occurred during validation against EPCIS JSON Query schema : "
-                        + exception.getMessage()));
-      }
-
-    });
+                this.jsonErrorHandler.getExceptions().stream().forEach(multiEmitter::emit);
+                multiEmitter.complete();
+              } catch (Exception exception) {
+                multiEmitter.fail(
+                    new SchemaValidationException(
+                        "Exception occurred during validation against EPCIS JSON Query schema : "
+                            + exception.getMessage()));
+              }
+            });
   }
 }
