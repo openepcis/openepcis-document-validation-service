@@ -63,18 +63,16 @@
     </modules>
 
     <repositories>
-        <!-- sonatype releases -->
+        <!-- Sonatype Central snapshots -->
         <repository>
-            <id>sonatype-releases</id>
-            <url>https://ossrh-staging-api.central.sonatype.com/content/repositories/releases</url>
-        </repository>
-        <!-- sonatype snapshots -->
-        <repository>
-            <id>sonatype-staging</id>
-            <url>https://ossrh-staging-api.central.sonatype.com/content/repositories/snapshots</url>
+            <id>central-snapshots</id>
+            <url>https://central.sonatype.com/repository/maven-snapshots/</url>
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
         </repository>
     </repositories>
 
