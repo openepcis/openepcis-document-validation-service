@@ -25,7 +25,7 @@ The `openepcis-document-validation-service` is designed to validate EPCIS docume
 
 1. Clone the repository:
     ```sh
-    git clone https://github.com/yourusername/openepcis-document-validation-service.git
+    git clone https://github.com/openepcis/openepcis-document-validation-service.git
     cd openepcis-document-validation-service
     ```
 
