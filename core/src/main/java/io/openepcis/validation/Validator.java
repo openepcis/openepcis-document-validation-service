@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2024 benelog GmbH & Co. KG
+ * Copyright 2022-2026 benelog GmbH & Co. KG
  *
  *     Licensed under the Apache License, Version 2.0 (the "License");
  *     you may not use this file except in compliance with the License.
@@ -18,21 +18,22 @@ package io.openepcis.validation;
 import io.openepcis.validation.exception.SchemaValidationException;
 import io.openepcis.validation.model.ValidationError;
 import io.smallrye.mutiny.Multi;
+
 import java.io.InputStream;
 
 public interface Validator {
 
-  Multi<ValidationError> validateAgainstCaptureSchema(final InputStream epcisInputData)
-      throws SchemaValidationException;
+    Multi<ValidationError> validateAgainstCaptureSchema(final InputStream epcisInputData) throws SchemaValidationException;
 
-  Multi<ValidationError> validateAgainstQuerySchema(final InputStream epcisInputData)
-      throws SchemaValidationException;
+    Multi<ValidationError> validateAgainstQuerySchema(final InputStream epcisInputData) throws SchemaValidationException;
 
-  default InputStream getResourceAsStream(final String name) {
-    InputStream inputStream = getClass().getResourceAsStream(name);
-    if (inputStream == null) {
-      return Thread.currentThread().getContextClassLoader().getResourceAsStream(name);
+    default InputStream getResourceAsStream(final String name) {
+        final InputStream inputStream = getClass().getResourceAsStream(name);
+
+        if (inputStream == null) {
+            return Thread.currentThread().getContextClassLoader().getResourceAsStream(name);
+        }
+
+        return inputStream;
     }
-    return inputStream;
-  }
 }

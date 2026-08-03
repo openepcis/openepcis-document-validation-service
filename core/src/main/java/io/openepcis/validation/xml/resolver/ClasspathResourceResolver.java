@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2024 benelog GmbH & Co. KG
+ * Copyright 2022-2026 benelog GmbH & Co. KG
  *
  *     Licensed under the Apache License, Version 2.0 (the "License");
  *     you may not use this file except in compliance with the License.
@@ -15,10 +15,11 @@
  */
 package io.openepcis.validation.xml.resolver;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import org.w3c.dom.ls.LSInput;
 import org.w3c.dom.ls.LSResourceResolver;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 public class ClasspathResourceResolver implements LSResourceResolver {
 

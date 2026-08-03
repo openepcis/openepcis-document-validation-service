@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2024 benelog GmbH & Co. KG
+ * Copyright 2022-2026 benelog GmbH & Co. KG
  *
  *     Licensed under the Apache License, Version 2.0 (the "License");
  *     you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ public class SchemaValidatorProcessor {
   @BuildStep
   NativeImageResourcePatternsBuildItem addNativeImageResourceBuildItem() {
     return NativeImageResourcePatternsBuildItem.builder()
-        .includeGlobs("json-schema/*", "xsd/**/*")
+            .includeGlobs("json-schema/*", "xsd/**/*", "validation-messages/*")
         .build();
   }
 

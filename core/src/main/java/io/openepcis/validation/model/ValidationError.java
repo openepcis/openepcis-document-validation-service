@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2024 benelog GmbH & Co. KG
+ * Copyright 2022-2026 benelog GmbH & Co. KG
  *
  *     Licensed under the Apache License, Version 2.0 (the "License");
  *     you may not use this file except in compliance with the License.
@@ -15,29 +15,70 @@
  */
 package io.openepcis.validation.model;
 
-import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
-import jakarta.xml.bind.annotation.XmlType;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.xml.bind.annotation.*;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.List;
+import java.util.regex.Pattern;
 
 @Data
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @XmlRootElement(name = "ValidationError")
 @XmlType(
-    name = "ValidationError",
-    propOrder = {"type", "line", "location", "message"})
+        name = "ValidationError",
+        propOrder = {
+                "type", "line", "location", "message",
+                "field", "value", "eventIndex", "eventType", "suggestion", "allowedValues"
+        })
 public class ValidationError {
 
-  @XmlAttribute private String type;
+    @XmlAttribute
+    private String type;
 
-  @XmlElement private String line;
+    @XmlElement
+    private String line;
 
-  @XmlElement private String location;
+    @XmlElement
+    private String location;
 
-  @XmlElement private String message;
+    @XmlElement
+    private String message;
 
-  public String filterErrorMessage(String message) {
-    String[] messageParts = message.split(":", 2);
-    return messageParts.length > 1 ? messageParts[1].trim() : message;
-  }
+    // Indicate which field failed
+    @XmlElement
+    private String field;
+
+    // User provided values
+    @XmlElement
+    private String value;
+
+    // zero based event index
+    @XmlElement
+    private Integer eventIndex;
+
+    // eventType for quick reference to users
+    @XmlElement
+    private String eventType;
+
+    // closest standard value, or null for suggesting to user
+    @XmlElement
+    private String suggestion;
+
+    // full list as data, UI can collapse it
+    @XmlElementWrapper(name = "allowedValues")
+    @XmlElement(name = "allowedValue")
+    private List<String> allowedValues;
+
+    // Strips only a leading XSD rule code such as "cvc-complex-type.2.4.a: ".
+    private static final Pattern XSD_ERROR_CODE = Pattern.compile("^(cvc|src|sch)-[A-Za-z0-9_.\\-]+:\\s*");
+
+    public String filterErrorMessage(final String message) {
+        if (StringUtils.isBlank(message)) {
+            return message;
+        }
+
+        return XSD_ERROR_CODE.matcher(message).replaceFirst("");
+    }
 }

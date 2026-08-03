@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2024 benelog GmbH & Co. KG
+ * Copyright 2022-2026 benelog GmbH & Co. KG
  *
  *     Licensed under the Apache License, Version 2.0 (the "License");
  *     you may not use this file except in compliance with the License.
@@ -15,96 +15,60 @@
  */
 package io.openepcis.validation.test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SpecVersion;
+import com.networknt.schema.serialization.JsonNodeReader;
 import io.openepcis.constants.EPCISDocumentType;
 import io.openepcis.constants.EPCISVersion;
+import io.openepcis.resources.util.Commons;
 import io.openepcis.validation.SchemaValidator;
 import io.openepcis.validation.model.ValidationError;
 import io.smallrye.mutiny.Multi;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
 import java.io.InputStream;
-import org.junit.jupiter.api.Test;
+import java.util.stream.Stream;
+
+import static io.openepcis.constants.EPCISDocumentType.CAPTURE;
+import static io.openepcis.constants.EPCISDocumentType.QUERY;
+import static io.openepcis.constants.EPCISVersion.VERSION_1_2_0;
+import static io.openepcis.constants.EPCISVersion.VERSION_2_0_0;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class XmlDocumentTest {
-  private ObjectMapper mapper = new ObjectMapper();
-  private SchemaValidator validator =
-      new SchemaValidator(
-          mapper,
-          JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7))
-              .jsonMapper(mapper)
-              .build());
+    private final ObjectMapper mapper = new ObjectMapper();
+    private final SchemaValidator validator =
+            new SchemaValidator(
+                    mapper,
+                    JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7))
+                            .jsonNodeReader(JsonNodeReader.builder().jsonMapper(mapper).build())
+                            .build());
+    private static final String INVALID_PATH = "2.0/EPCIS/XML/Capture/Invalid";
+    private static final String QUERY_PATH = "2.0/EPCIS/XML/Query";
+    private static final String CAPTURE_PATH = "2.0/EPCIS/XML/Capture/Documents";
+    private static final String CAPTURE_1_2_PATH = "1.2/EPCIS/XML/Capture/Documents";
 
-  @Test
-  public void captureDocumentWithBareEventTest() {
-    final InputStream inputStream =
-        getClass().getResourceAsStream("/xml/captureDocument-independent-object-event.xml");
-    final Multi<ValidationError> xsdCaptureErrors =
-        validator.validate(
-            inputStream, "application/xml", EPCISDocumentType.CAPTURE, EPCISVersion.VERSION_2_0_0);
-    var errors = xsdCaptureErrors.subscribe().asStream().toList();
-    assertEquals(1, errors.size());
-  }
+    @ParameterizedTest(name = "{index}: {0}")
+    @MethodSource("validationTestCases")
+    void validateDocuments(String testName, String resource, EPCISDocumentType documentType, EPCISVersion version, int expectedErrors) {
+        final InputStream inputStream = Commons.getInputStream(resource);
+        final Multi<ValidationError> validationErrorMulti = validator.validate(inputStream, "application/xml", documentType, version);
+        var errors = validationErrorMulti.subscribe().asStream().toList();
+        assertEquals(expectedErrors, errors.size());
+    }
 
-  @Test
-  public void captureDocumentWithComment() {
-    final InputStream inputStream =
-        getClass().getResourceAsStream("/xml/captureDocumentWithComment.xml");
-    final Multi<ValidationError> xsdCaptureErrors =
-        validator.validate(
-            inputStream, "application/xml", EPCISDocumentType.CAPTURE, EPCISVersion.VERSION_1_2_0);
-    var errors = xsdCaptureErrors.subscribe().asStream().toList();
-    assertEquals(0, errors.size());
-  }
-
-  @Test
-  public void captureDocumentCompleteEPCISDocumentTest() {
-    final InputStream inputStream =
-        getClass().getResourceAsStream("/xml/captureDocument-complete-epcis-20-document.xml");
-    final Multi<ValidationError> xsdCaptureErrors =
-        validator.validate(
-            inputStream, "application/xml", EPCISDocumentType.CAPTURE, EPCISVersion.VERSION_2_0_0);
-    assertEquals(0, xsdCaptureErrors.subscribe().asStream().toList().size());
-  }
-
-  @Test
-  public void queryDocumentWithEventTimeTest() {
-    final InputStream inputStream = getClass().getResourceAsStream("/xml/queryDocument.xml");
-    final Multi<ValidationError> xsdQueryErrors =
-        validator.validate(
-            inputStream, "application/xml", EPCISDocumentType.QUERY, EPCISVersion.VERSION_2_0_0);
-    assertEquals(0, xsdQueryErrors.subscribe().asStream().toList().size());
-  }
-
-  @Test
-  public void queryDocumentWithEventTypeTest() {
-    final InputStream inputStream =
-        getClass().getResourceAsStream("/xml/queryDocumentWithEventType.xml");
-    final Multi<ValidationError> xsdQueryErrors =
-        validator.validate(
-            inputStream, "application/xml", EPCISDocumentType.QUERY, EPCISVersion.VERSION_2_0_0);
-    assertEquals(0, xsdQueryErrors.subscribe().asStream().toList().size());
-  }
-
-  @Test
-  public void queryDocumentWithReadPointTest() {
-    final InputStream inputStream =
-        getClass().getResourceAsStream("/xml/queryDocumentWithReadPoint.xml");
-    final Multi<ValidationError> xsdQueryErrors =
-        validator.validate(
-            inputStream, "application/xml", EPCISDocumentType.QUERY, EPCISVersion.VERSION_2_0_0);
-    assertEquals(0, xsdQueryErrors.subscribe().asStream().toList().size());
-  }
-
-  @Test
-  public void queryDocumentWithMissingValueTest() {
-    final InputStream inputStream =
-        getClass().getResourceAsStream("/xml/queryDocumentWithMissingValue.xml");
-    final Multi<ValidationError> xsdQueryErrors =
-        validator.validate(
-            inputStream, "application/xml", EPCISDocumentType.QUERY, EPCISVersion.VERSION_2_0_0);
-    assertEquals(1, xsdQueryErrors.subscribe().asStream().toList().size());
-  }
+    static Stream<Arguments> validationTestCases() {
+        return Stream.of(
+                Arguments.of("Capture document with bare event", INVALID_PATH + "/ObjectEvent_bare_event_without_action.xml", CAPTURE, VERSION_2_0_0, 1),
+                Arguments.of("Capture document with comment", CAPTURE_1_2_PATH + "/EPCISDocument_with_comment.xml", CAPTURE, VERSION_1_2_0, 0),
+                Arguments.of("Complete EPCIS capture document", CAPTURE_PATH + "/Combination_of_different_event.xml", CAPTURE, VERSION_2_0_0, 0),
+                Arguments.of("Query document with event time", QUERY_PATH + "/queryDocument.xml", QUERY, VERSION_2_0_0, 0),
+                Arguments.of("Query document with event type", QUERY_PATH + "/queryDocumentWithEventType.xml", QUERY, VERSION_2_0_0, 0),
+                Arguments.of("Query document with read point", QUERY_PATH + "/queryDocumentWithReadPoint.xml", QUERY, VERSION_2_0_0, 0),
+                Arguments.of("Query document with missing value", QUERY_PATH + "/Invalid/QueryDocument_with_missing_value.xml", QUERY, VERSION_2_0_0, 1)
+        );
+    }
 }
