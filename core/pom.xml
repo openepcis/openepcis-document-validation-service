@@ -69,6 +69,12 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Streams EPCIS JSON/JSON-LD document by one event one at a time -->
+        <dependency>
+            <groupId>io.openepcis</groupId>
+            <artifactId>openepcis-reactive-event-publisher</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-core</artifactId>

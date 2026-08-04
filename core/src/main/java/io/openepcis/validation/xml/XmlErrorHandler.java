@@ -15,6 +15,7 @@
  */
 package io.openepcis.validation.xml;
 
+import io.openepcis.validation.config.ValidationDefaults;
 import io.openepcis.validation.message.MessageTemplates;
 import io.openepcis.validation.model.ValidationError;
 import lombok.Getter;
@@ -23,6 +24,7 @@ import org.xml.sax.SAXParseException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * custom error handler while validating xml against xsd
@@ -30,9 +32,17 @@ import java.util.List;
 public class XmlErrorHandler implements ErrorHandler {
     @Getter
     private final List<ValidationError> exceptions;
+    // Max number of validation errors that can be added
+    private final int maxReportedErrors;
 
     public XmlErrorHandler() {
+        this(ValidationDefaults.MAX_REPORTED_ERRORS);
+    }
+
+    public XmlErrorHandler(final int maxReportedErrors) {
         this.exceptions = new ArrayList<>();
+        // passed in from SchemaValidator, so core needs no configuration framework of its own
+        this.maxReportedErrors = maxReportedErrors > 0 ? maxReportedErrors : ValidationDefaults.MAX_REPORTED_ERRORS;
     }
 
     @Override
@@ -51,6 +61,15 @@ public class XmlErrorHandler implements ErrorHandler {
     }
 
     public void handleError(final SAXParseException e) {
+        if (this.exceptions.size() >= maxReportedErrors) {
+            return; // the marker is already the last entry, nothing further is recorded
+        }
+
+        if (this.exceptions.size() == maxReportedErrors - 1) {
+            this.exceptions.add(limitExceeded(maxReportedErrors - 1)); // same wording as the JSON path
+            return;
+        }
+
         final String raw = e.getMessage() == null ? "" : e.getMessage(); // never NPE on a null message
         final String line = Integer.toString(e.getLineNumber());
         final String column = Integer.toString(e.getColumnNumber());
@@ -86,6 +105,17 @@ public class XmlErrorHandler implements ErrorHandler {
             }
         }
         return "invalid"; // an honest default, better than claiming a field was required
+    }
+
+    // The last entry in errors when limit is exceeded, so a capped list is never mistaken for a complete one.
+    private ValidationError limitExceeded(final int limit) {
+        final ValidationError error = new ValidationError();
+        error.setType("limitExceeded");
+        error.setMessage(MessageTemplates.hasKeyword("limit.exceeded")
+                ? MessageTemplates.render(MessageTemplates.keyword("limit.exceeded"), Map.of("limit", String.valueOf(limit)))
+                : "Validation stopped after " + limit + " problems. This document has more.");
+        return error;
+
     }
 
 }

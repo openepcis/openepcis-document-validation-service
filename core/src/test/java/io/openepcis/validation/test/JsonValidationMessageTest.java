@@ -231,11 +231,10 @@ class JsonValidationMessageTest {
     @DisplayName("invalid: a missing @context is reported against the document, not an event")
     void missingContextIsReportedAtDocumentLevel() {
         final List<ValidationError> errors = validate(INVALID + "EPCISDocument_without_context.json");
-
         assertEquals(1, errors.size());
         assertEquals("@context", errors.getFirst().getField());
         assertNull(errors.getFirst().getEventIndex());
-        assertTrue(errors.getFirst().getMessage().contains("the document"));
+        assertTrue(errors.getFirst().getMessage().contains("The document could not be read"));
     }
 
     @Test

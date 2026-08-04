@@ -20,6 +20,7 @@ import com.networknt.schema.JsonSchemaFactory;
 import io.openepcis.constants.EPCIS;
 import io.openepcis.constants.EPCISDocumentType;
 import io.openepcis.constants.EPCISVersion;
+import io.openepcis.validation.config.ValidationDefaults;
 import io.openepcis.validation.json.JsonSchemaValidator;
 import io.openepcis.validation.model.ValidationError;
 import io.openepcis.validation.xml.Xml12SchemaValidator;
@@ -36,9 +37,14 @@ public class SchemaValidator {
     private final Xml12SchemaValidator xml12SchemaValidator;
 
     public SchemaValidator(final ObjectMapper mapper, final JsonSchemaFactory factory) {
-        this.jsonSchemaValidator = new JsonSchemaValidator(mapper, factory);
-        this.xml20SchemaValidator = new Xml20SchemaValidator();
-        this.xml12SchemaValidator = new Xml12SchemaValidator();
+        this(mapper, factory, ValidationDefaults.MAX_REPORTED_ERRORS);
+    }
+
+    public SchemaValidator(final ObjectMapper mapper, final JsonSchemaFactory factory, final int maxReportedErrors) {
+        this.jsonSchemaValidator = new JsonSchemaValidator(mapper, factory, maxReportedErrors);
+        // same limit for XML and JSON, so the two front ends behave alike
+        this.xml20SchemaValidator = new Xml20SchemaValidator(maxReportedErrors);
+        this.xml12SchemaValidator = new Xml12SchemaValidator(maxReportedErrors);
     }
 
     /**

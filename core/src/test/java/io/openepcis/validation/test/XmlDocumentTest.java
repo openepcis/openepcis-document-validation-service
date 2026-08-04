@@ -38,7 +38,7 @@ import static io.openepcis.constants.EPCISVersion.VERSION_1_2_0;
 import static io.openepcis.constants.EPCISVersion.VERSION_2_0_0;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class XmlDocumentTest {
+class XmlDocumentTest {
     private final ObjectMapper mapper = new ObjectMapper();
     private final SchemaValidator validator =
             new SchemaValidator(
@@ -62,13 +62,16 @@ public class XmlDocumentTest {
 
     static Stream<Arguments> validationTestCases() {
         return Stream.of(
-                Arguments.of("Capture document with bare event", INVALID_PATH + "/ObjectEvent_bare_event_without_action.xml", CAPTURE, VERSION_2_0_0, 1),
+                Arguments.of("Capture document with bare event", INVALID_PATH + "/ObjectEvent_with_invalid_action.xml", CAPTURE, VERSION_2_0_0, 1),
                 Arguments.of("Capture document with comment", CAPTURE_1_2_PATH + "/EPCISDocument_with_comment.xml", CAPTURE, VERSION_1_2_0, 0),
                 Arguments.of("Complete EPCIS capture document", CAPTURE_PATH + "/Combination_of_different_event.xml", CAPTURE, VERSION_2_0_0, 0),
-                Arguments.of("Query document with event time", QUERY_PATH + "/queryDocument.xml", QUERY, VERSION_2_0_0, 0),
-                Arguments.of("Query document with event type", QUERY_PATH + "/queryDocumentWithEventType.xml", QUERY, VERSION_2_0_0, 0),
-                Arguments.of("Query document with read point", QUERY_PATH + "/queryDocumentWithReadPoint.xml", QUERY, VERSION_2_0_0, 0),
-                Arguments.of("Query document with missing value", QUERY_PATH + "/Invalid/QueryDocument_with_missing_value.xml", QUERY, VERSION_2_0_0, 1)
+                Arguments.of("Simple Query document", QUERY_PATH + "/queryDocument.xml", QUERY, VERSION_2_0_0, 0),
+                Arguments.of("Query document with multiple events", QUERY_PATH + "/QueryDocumentWithMultipleEvents.xml", QUERY, VERSION_2_0_0, 0),
+                Arguments.of("Query document with missing value", QUERY_PATH + "/Invalid/QueryDocument_with_missing_value.xml", QUERY, VERSION_2_0_0, 1),
+
+                // XML Queries
+                Arguments.of("Literal query with GE_ and LT_ params", QUERY_PATH + "/Queries/SimpleEventQuery.xml", QUERY, VERSION_2_0_0, 0),
+                Arguments.of("Literal query without queryName", QUERY_PATH + "/Queries/Invalid/Query_without_queryName.xml", QUERY, VERSION_2_0_0, 1)
         );
     }
 }

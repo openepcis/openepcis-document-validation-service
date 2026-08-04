@@ -103,10 +103,10 @@ public class EventModifier {
 
                             writer.writeStartDocument();
 
-                            writer.writeStartElement(EPCIS.EPCIS, EPCIS.EPCIS_DOCUMENT, EPCIS.EPCIS_2_0_XMLNS);
+                            writer.writeStartElement(EPCIS.EPCIS_NAMESPACE_PREFIX, EPCIS.EPCIS_DOCUMENT, EPCIS.EPCIS_2_0_XMLNS);
                             writer.writeAttribute(EPCIS.CREATION_DATE, Instant.now().toString());
                             writer.writeAttribute(EPCIS.SCHEMA_VERSION, EPCISVersion.VERSION_2_0_0.getSchemaVersion());
-                            writer.writeNamespace(EPCIS.EPCIS, EPCIS.EPCIS_2_0_XMLNS);
+                            writer.writeNamespace(EPCIS.EPCIS_NAMESPACE_PREFIX, EPCIS.EPCIS_2_0_XMLNS);
                             writer.writeNamespace(EPCIS.XSI, EPCIS.XML_SCHEMA_INSTANCE);
 
                             writer.writeStartElement(EPCIS.EPCIS_BODY);

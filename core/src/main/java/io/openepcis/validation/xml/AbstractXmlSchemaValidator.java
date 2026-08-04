@@ -16,6 +16,7 @@
 package io.openepcis.validation.xml;
 
 import io.openepcis.validation.Validator;
+import io.openepcis.validation.config.ValidationDefaults;
 import io.openepcis.validation.exception.SchemaValidationException;
 import io.openepcis.validation.model.ValidationError;
 import io.smallrye.mutiny.Multi;
@@ -29,10 +30,10 @@ import java.io.InputStream;
 
 public abstract class AbstractXmlSchemaValidator implements Validator {
 
+    protected int maxReportedErrors = ValidationDefaults.MAX_REPORTED_ERRORS;
     protected Schema captureXmlSchema;
     protected Schema queryXmlSchema;
     protected EventModifier eventModifier = new EventModifier();
-    protected XmlErrorHandler xsdErrorHandler;
     protected SchemaFactory schemaFactory;
 
     @Override
@@ -43,9 +44,12 @@ public abstract class AbstractXmlSchemaValidator implements Validator {
                             try {
                                 final InputStream inputEvent = eventModifier.modifyEvent(captureInput);
                                 final javax.xml.validation.Validator validator = captureXmlSchema.newValidator();
-                                validator.setErrorHandler(this.xsdErrorHandler);
+                                // Fresh handler to avoid reused validation polluting with old errors
+                                final XmlErrorHandler errorHandler = new XmlErrorHandler(maxReportedErrors);
+
+                                validator.setErrorHandler(errorHandler);
                                 validator.validate(new StreamSource(inputEvent));
-                                this.xsdErrorHandler.getExceptions().forEach(multiEmitter::emit);
+                                errorHandler.getExceptions().forEach(multiEmitter::emit);
                                 multiEmitter.complete();
                             } catch (Exception e) {
                                 multiEmitter.fail(new SchemaValidationException("Failed to validate the Capture XML document against the XSD : " + e.getMessage(), e));
@@ -60,10 +64,13 @@ public abstract class AbstractXmlSchemaValidator implements Validator {
                 .emitter(
                         multiEmitter -> {
                             final javax.xml.validation.Validator validator = queryXmlSchema.newValidator();
-                            validator.setErrorHandler(this.xsdErrorHandler);
+                            // Fresh handler to avoid reused validation polluting with old errors
+                            final XmlErrorHandler errorHandler = new XmlErrorHandler(maxReportedErrors);
+                            validator.setErrorHandler(errorHandler);
+
                             try {
                                 validator.validate(new StreamSource(queryInput));
-                                this.xsdErrorHandler.getExceptions().forEach(multiEmitter::emit);
+                                errorHandler.getExceptions().forEach(multiEmitter::emit);
                                 multiEmitter.complete();
                             } catch (SAXException | IOException e) {
                                 multiEmitter.fail(new SchemaValidationException("Failed to validate the Query XML document against the XSD : " + e.getMessage(), e));

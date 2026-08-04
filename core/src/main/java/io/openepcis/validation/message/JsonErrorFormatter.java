@@ -27,80 +27,122 @@ import java.util.*;
  */
 public final class JsonErrorFormatter {
 
-    /**
-     * When one position produced several messages, lead with the most useful keyword.
-     */
+    //When one position produced several messages, lead with the most useful keyword.
     private static final List<String> KEYWORD_PRIORITY =
             List.of(
                     "required", "additionalProperties", "propertyNames", "enum", "type", "format", "pattern",
                     "minItems", "maxItems", "uniqueItems", "minimum", "maximum", "minLength");
-
-    /**
-     * Keeps a 41 value vocabulary out of the sentence. The full list travels in allowedValues.
-     */
+    // Keeps a 41 value vocabulary out of the sentence. The full list travels in allowedValues.
     private static final int ALLOWED_SAMPLE_SIZE = 6;
 
     /**
-     * Groups and words every failure.
+     * Where a single streamed event sits in the document. Null whenever the whole document was
+     * parsed, because then the paths networknt reports are already absolute.
      *
-     * @param document the already parsed document, read only to name the event type. Never re-parsed.
-     * @param messages the raw messages from networknt
+     * @param prefix the absolute path of this event, for example $.epcisBody.eventList[3]
+     * @param index  its zero based position in the event list
+     * @param type   its EPCIS event type, or null when the document did not declare one
+     */
+    private record EventContext(String prefix, int index, String type) {
+    }
+
+    /**
+     * Groups and words every failure of a whole parsed document.
      */
     public List<ValidationError> format(final JsonNode document, final Collection<ValidationMessage> messages) {
+        return format(document, messages, null); // no context, the reported paths are already absolute
+    }
+
+    /**
+     * Groups and words the failures of one streamed event.
+     *
+     * <p>A streamed event is validated on its own, so networknt reports $.eventTime where the caller
+     * needs $.epcisBody.eventList[3].eventTime. The context restores that, which is what keeps the
+     * location usable for jumping to a line in an editor.
+     *
+     * @param eventListPath absolute path of the list holding the event, without the index
+     * @param eventIndex    zero based position of the event in that list
+     * @param eventType     EPCIS event type of the event, may be null
+     */
+    public List<ValidationError> formatEvent(final String eventListPath,
+                                             final int eventIndex,
+                                             final String eventType,
+                                             final Collection<ValidationMessage> messages) {
+        // the index is appended here so a caller cannot get the bracket syntax wrong
+        final String prefix = eventListPath + "[" + eventIndex + "]";
+        // no document tree exists while streaming, the context carries what would be read from it
+        return format(null, messages, new EventContext(prefix, eventIndex, eventType));
+    }
+
+    private List<ValidationError> format(final JsonNode document,
+                                         final Collection<ValidationMessage> messages,
+                                         final EventContext context) {
 
         if (CollectionUtils.isEmpty(messages)) {
             // valid document, so no allocation at all
             return List.of();
         }
 
-        // every position that reported something
-        final Set<String> locations = new HashSet<>();
-        for (final ValidationMessage message : messages) {
-            locations.add(message.getInstanceLocation().toString());
-        }
-
         final Map<String, List<ValidationMessage>> byLocation = new LinkedHashMap<>();
         for (final ValidationMessage message : messages) {
-            if (isBranchNoise(message, locations)) {
-                continue; // a precise error deeper in the document already explains this one
-            }
             // one bucket per position, which is what merges the duplicates
             byLocation.computeIfAbsent(message.getInstanceLocation().toString(), key -> new ArrayList<>()).add(message);
         }
 
+        // where each anyOf/oneOf choice failed, so a choice can tell a missing field from a bad one
+        final Map<String, Set<String>> branchLocations = branchLocations(messages);
         final List<ValidationError> results = new ArrayList<>(byLocation.size());
-        byLocation.forEach((location, group) -> results.addAll(buildAll(document, location, group)));
+        byLocation.forEach((location, group) -> results.addAll(buildAll(document, location, group, branchLocations, context)));
         results.sort(Comparator.comparing(error -> error.getLocation() == null ? "" : error.getLocation()));
         return results;
     }
 
     /**
-     * A failed schema branch is only a guess about which shape was intended. When a concrete problem
-     * exists deeper in the same subtree, that deeper problem is the real cause and the branch level
-     * "required property X not found" messages are noise. This is what turns 5 errors into 1.
+     * Records every position at which each anyOf/oneOf choice failed, keyed by the choice.
      *
-     * <p>Deliberately narrow: required only, inside a branch only, and only when something strictly
-     * deeper also failed. A genuine missing field is never hidden.
+     * <p>A branch that fails at the position of the choice itself was rejected because a field is
+     * absent. A branch that fails deeper got past that presence check, so the field was supplied and
+     * only its contents are wrong. Telling those two apart is what {@link
+     * #choiceWasSatisfiedButInvalid} needs.
      */
-    private boolean isBranchNoise(final ValidationMessage message, final Set<String> locations) {
-        if (!"required".equals(message.getType()) || !insideBranch(message)) {
-            return false; // anything else is always kept
+    private Map<String, Set<String>> branchLocations(final Collection<ValidationMessage> messages) {
+        final Map<String, Set<String>> byBranch = new HashMap<>();
+        for (final ValidationMessage message : messages) {
+            final String branch = branchGroupOf(message);
+            if (branch != null) {
+                byBranch.computeIfAbsent(branch, key -> new HashSet<>())
+                        .add(message.getInstanceLocation().toString());
+            }
         }
-        final String location = message.getInstanceLocation().toString();
-        for (final String other : locations) {
-            if (other.length() > location.length() // strictly longer means strictly deeper
+        return byBranch;
+    }
+
+    /**
+     * Whether the document already satisfied this choice and only got the contents wrong.
+     *
+     * <p>An event carrying a quantityList with an unknown field inside it fails that branch deep in
+     * the subtree, and the sibling branches then report their own fields as missing. Saying "epcList
+     * or sensorElementList is missing" would be wrong, so the choice is dropped and the precise error
+     * inside quantityList is kept instead.
+     *
+     * <p>Only failures of this same choice count. That is what stops an unrelated problem, such as a
+     * malformed eventTime, from ever hiding a genuinely missing field.
+     */
+    private boolean choiceWasSatisfiedButInvalid(final String branch,
+                                                 final String location,
+                                                 final Map<String, Set<String>> branchLocations) {
+        final Set<String> inGroup = branchLocations.get(branch);
+        if (inGroup == null) {
+            return false; // nothing recorded for this choice, so keep the error
+        }
+        for (final String other : inGroup) {
+            if (other.length() > location.length() // strictly longer means deeper than the choice
                     && other.startsWith(location)
                     && (other.charAt(location.length()) == '.' || other.charAt(location.length()) == '[')) {
-                return true; // a real problem exists below this position
+                return true; // a branch of this choice got past the presence check
             }
         }
         return false;
-    }
-
-    // Whether the message came out of an anyOf or oneOf branch rather than an unconditional rule.
-    private boolean insideBranch(final ValidationMessage message) {
-        final String path = message.getEvaluationPath().toString();
-        return path.contains("anyOf[") || path.contains("oneOf[");
     }
 
     // Which anyOf or oneOf produced it, so sibling branches of the same choice can be merged.
@@ -118,8 +160,11 @@ public final class JsonErrorFormatter {
      * One position can still hold genuinely different problems. Alternative required fields coming
      * from sibling branches become one "at least one of" sentence, everything else is kept separate.
      */
-    private List<ValidationError> buildAll(
-            final JsonNode document, final String location, final List<ValidationMessage> group) {
+    private List<ValidationError> buildAll(final JsonNode document,
+                                           final String location,
+                                           final List<ValidationMessage> group,
+                                           final Map<String, Set<String>> branchLocations,
+                                           final EventContext context) {
 
         // Every "required" message is grouped by the choice it came out of. The empty key collects the
         // unconditional ones, where each named field really is missing rather than being an alternative.
@@ -148,14 +193,17 @@ public final class JsonErrorFormatter {
                             fields.add(message.getProperty()); // getProperty holds the missing field name
                         }
                     }
+
                     // sibling branches offer a choice, so they become one "at least one of" sentence
-                    if (!branch.isEmpty()
-                            && fields.size() > 1
-                            && MessageTemplates.hasKeyword("required.alternatives")) {
-                        results.add(
-                                buildRequiredGroup(document, location, siblings, fields, "required.alternatives"));
+                    if (!branch.isEmpty() && fields.size() > 1 && MessageTemplates.hasKeyword("required.alternatives")) {
+                        if (choiceWasSatisfiedButInvalid(branch, location, branchLocations)) {
+                            return; // the precise error inside that field is the real one
+                        }
+
+                        results.add(buildRequiredGroup(document, location, siblings, fields, "required.alternatives", context));
                         return;
                     }
+
                     for (final ValidationMessage message : siblings) {
                         if (message.getProperty() == null) {
                             others.add(message); // no field name to group by, report it on its own
@@ -173,13 +221,14 @@ public final class JsonErrorFormatter {
                             location,
                             List.copyOf(leftoverRequired.values()),
                             leftoverRequired.keySet(),
-                            "required.multiple"));
+                            "required.multiple",
+                            context));
         } else {
             others.addAll(leftoverRequired.values()); // a single missing field stays an ordinary message
         }
 
         if (!others.isEmpty()) {
-            results.add(build(document, location, others));
+            results.add(build(document, location, others, context));
         }
         return results;
     }
@@ -195,15 +244,16 @@ public final class JsonErrorFormatter {
             final String location,
             final List<ValidationMessage> siblings,
             final Set<String> fields,
-            final String templateKey) {
+            final String templateKey,
+            final EventContext context) {
         final ValidationError error = new ValidationError();
         error.setType("required");
         error.setLine(siblings.get(0).getSchemaLocation().toString());
-        error.setLocation(location);
+        error.setLocation(absolute(location, context)); // full document path even while streaming
 
         final String joined = String.join(", ", fields);
         error.setField(joined);
-        applyEventContext(error, document, location);
+        applyEventContext(error, document, location, context);
         error.setAllowedValues(List.copyOf(fields));
         error.setMessage(MessageTemplates.render(MessageTemplates.keyword(templateKey), Map.of("where", whereLabel(error), "fields", joined)));
 
@@ -213,21 +263,23 @@ public final class JsonErrorFormatter {
     /**
      * Builds one error from a group of messages that all describe the same position.
      */
-    private ValidationError build(
-            final JsonNode document, final String location, final List<ValidationMessage> group) {
+    private ValidationError build(final JsonNode document,
+                                  final String location,
+                                  final List<ValidationMessage> group,
+                                  final EventContext context) {
 
         final ValidationMessage primary = pickPrimary(group); // the most informative of the group
         final ValidationError error = new ValidationError();
 
         error.setType(primary.getType()); // unchanged, the front end may switch on it
         error.setLine(primary.getSchemaLocation().toString()); // unchanged
-        error.setLocation(location); // unchanged
+        error.setLocation(absolute(location, context)); // full document path even while streaming
 
         // the field name is the last path segment, except for required, additionalProperties and
         // propertyNames, where the path points at the parent and the name is in getProperty
         error.setField(primary.getProperty() != null ? primary.getProperty() : lastSegment(location));
         error.setValue(plainValue(primary.getInstanceNode())); // the value sent, previously discarded
-        applyEventContext(error, document, location);
+        applyEventContext(error, document, location, context);
 
         final List<String> allowed = allowedValuesIn(group); // read from the schema, never hard coded
         if (!allowed.isEmpty()) {
@@ -380,8 +432,16 @@ public final class JsonErrorFormatter {
     /**
      * Records which event holds the problem, so a message can say "event 6 (TransformationEvent)".
      */
-    private void applyEventContext(
-            final ValidationError error, final JsonNode document, final String location) {
+    private void applyEventContext(final ValidationError error,
+                                   final JsonNode document,
+                                   final String location,
+                                   final EventContext context) {
+        if (context != null) {
+            // streaming already knows which event this is, so no path parsing and no tree lookup
+            error.setEventIndex(context.index());
+            error.setEventType(context.type());
+            return;
+        }
         final Integer index = eventIndexOf(location);
         if (index == null) {
             return; // the problem is outside eventList, for example at the document root
@@ -397,6 +457,18 @@ public final class JsonErrorFormatter {
                 error.setEventType(type.asText()); // read from the parsed tree, no second parse
             }
         }
+    }
+
+    /**
+     * Rewrites an event relative path into a full document path, so a caller of {@link #formatEvent}
+     * gets the same location it would have got from validating the whole document.
+     */
+    private String absolute(final String location, final EventContext context) {
+        if (context == null || location == null) {
+            return location; // whole document mode, the path is already absolute
+        }
+        // $ alone means the event itself, anything else keeps its tail after the leading $
+        return "$".equals(location) ? context.prefix() : context.prefix() + location.substring(1);
     }
 
     /**

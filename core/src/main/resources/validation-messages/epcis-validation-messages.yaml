@@ -275,6 +275,11 @@ keywords:
   false: '{field} is not allowed in {where}.'
   id: '"{value}" is not a valid identifier for {field} in {where}.'
 
+  # Appended as the final entry when the list was capped
+  limit.exceeded: 'Validation stopped after {limit} problems. This document has more, so the list above is not complete. Fix these first, then validate again.'
+
+  # Emitted when the parser produced nothing at all, so an unreadable document is never reported clean.
+  document.unreadable: 'The document could not be read. Check that @context is present and appears before epcisBody.'
 
 # =============================================================================
 #  REUSABLE SENTENCE PIECES

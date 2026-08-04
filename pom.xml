@@ -17,143 +17,155 @@
 
 -->
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>io.openepcis</groupId>
-    <artifactId>openepcis-bom</artifactId>
-    <version>999-SNAPSHOT</version>
-  </parent>
-  <artifactId>openepcis-document-validation-parent</artifactId>
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>io.openepcis</groupId>
+        <artifactId>openepcis-bom</artifactId>
+        <version>999-SNAPSHOT</version>
+    </parent>
+    <artifactId>openepcis-document-validation-parent</artifactId>
 
     <name>openepcis-document-validation-parent</name>
-  <packaging>pom</packaging>
-  <description>Service to validate EPCIS 2.0 documents and identifiers ensuring complicante with EPCIS standards.</description>
-  <url>https://github.com/openepcis/openepcis-document-validation-service</url>
+    <packaging>pom</packaging>
+    <description>Service to validate EPCIS 2.0 documents and identifiers ensuring complicante with EPCIS standards.</description>
+    <url>https://github.com/openepcis/openepcis-document-validation-service</url>
 
-  <licenses>
-    <license>
-      <name>The Apache Software License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-    </license>
-  </licenses>
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
 
-  <developers>
-    <developer>
-      <name>Sven Boeckelmann</name>
-      <email>sven.boeckelmann@benelog.com</email>
-      <organization>benelog GmbH &amp; Co. KG</organization>
-      <organizationUrl>https://www.benelog.com</organizationUrl>
-    </developer>
-  </developers>
+    <developers>
+        <developer>
+            <name>Sven Boeckelmann</name>
+            <email>sven.boeckelmann@benelog.com</email>
+            <organization>benelog GmbH &amp; Co. KG</organization>
+            <organizationUrl>https://www.benelog.com</organizationUrl>
+        </developer>
+        <developer>
+            <name>Aravinda Baligab</name>
+            <organization>benelog GmbH &amp; Co. KG</organization>
+            <organizationUrl>https://www.benelog.com</organizationUrl>
+        </developer>
+    </developers>
 
-  <scm>
-    <connection>scm:git:git://github.com/openepcis/openepcis-document-validation-service.git</connection>
-    <developerConnection>scm:git:ssh://github.com:openepcis/openepcis-document-validation-service.git</developerConnection>
-    <url>https://github.com/openepcis/openepcis-document-validation-service/tree/main</url>
-  </scm>
+    <scm>
+        <connection>scm:git:git://github.com/openepcis/openepcis-document-validation-service.git</connection>
+        <developerConnection>scm:git:ssh://github.com:openepcis/openepcis-document-validation-service.git</developerConnection>
+        <url>https://github.com/openepcis/openepcis-document-validation-service/tree/main</url>
+    </scm>
 
 
-  <modules>
-    <module>core</module>
-    <module>restassured</module>
-    <module>rest-api</module>
-    <module>servlet-api</module>
-    <module>quarkus</module>
-  </modules>
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>io.openepcis</groupId>
-        <artifactId>openepcis-document-validation-service</artifactId>
-        <version>${project.parent.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.openepcis</groupId>
-        <artifactId>openepcis-document-validation-rest-api</artifactId>
-        <version>${project.parent.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.openepcis</groupId>
-        <artifactId>openepcis-document-validation-servlet-api</artifactId>
-        <version>${project.parent.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.openepcis</groupId>
-        <artifactId>openepcis-document-validation-restassured</artifactId>
-        <version>${project.parent.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.openepcis.quarkus</groupId>
-        <artifactId>quarkus-document-validation-service</artifactId>
-        <version>${project.parent.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.openepcis.quarkus</groupId>
-        <artifactId>quarkus-document-validation-service-deployment</artifactId>
-        <version>${project.parent.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.openepcis.quarkus</groupId>
-        <artifactId>quarkus-openepcis-model-deployment</artifactId>
-        <version>${project.parent.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.openepcis.quarkus</groupId>
-        <artifactId>quarkus-test-resources-deployment</artifactId>
-        <version>${project.parent.version}</version>
-      </dependency>
+    <modules>
+        <module>core</module>
+        <module>restassured</module>
+        <module>rest-api</module>
+        <module>servlet-api</module>
+        <module>quarkus</module>
+    </modules>
 
-      <!-- OpenEPCIS xml dependencies -->
-      <dependency>
-        <groupId>io.openepcis</groupId>
-        <artifactId>openepcis-epcis-constants</artifactId>
-        <version>${project.parent.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.openepcis</groupId>
-        <artifactId>openepcis-model-rest</artifactId>
-        <version>${project.parent.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.openepcis</groupId>
-        <artifactId>openepcis-model-epcis</artifactId>
-        <version>${project.parent.version}</version>
-      </dependency>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.openepcis</groupId>
+                <artifactId>openepcis-document-validation-service</artifactId>
+                <version>${project.parent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.openepcis</groupId>
+                <artifactId>openepcis-document-validation-rest-api</artifactId>
+                <version>${project.parent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.openepcis</groupId>
+                <artifactId>openepcis-document-validation-servlet-api</artifactId>
+                <version>${project.parent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.openepcis</groupId>
+                <artifactId>openepcis-document-validation-restassured</artifactId>
+                <version>${project.parent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.openepcis.quarkus</groupId>
+                <artifactId>quarkus-document-validation-service</artifactId>
+                <version>${project.parent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.openepcis.quarkus</groupId>
+                <artifactId>quarkus-document-validation-service-deployment</artifactId>
+                <version>${project.parent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.openepcis.quarkus</groupId>
+                <artifactId>quarkus-openepcis-model-deployment</artifactId>
+                <version>${project.parent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.openepcis.quarkus</groupId>
+                <artifactId>quarkus-test-resources-deployment</artifactId>
+                <version>${project.parent.version}</version>
+            </dependency>
+            <!-- EPCIS JSON/JSON-LD document publisher -->
+            <dependency>
+                <groupId>io.openepcis</groupId>
+                <artifactId>openepcis-reactive-event-publisher</artifactId>
+                <version>${project.parent.version}</version>
+            </dependency>
 
-      <dependency>
-        <groupId>io.openepcis</groupId>
-        <artifactId>openepcis-test-resources</artifactId>
-        <version>${project.parent.version}</version>
-      </dependency>
+            <!-- OpenEPCIS xml dependencies -->
+            <dependency>
+                <groupId>io.openepcis</groupId>
+                <artifactId>openepcis-epcis-constants</artifactId>
+                <version>${project.parent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.openepcis</groupId>
+                <artifactId>openepcis-model-rest</artifactId>
+                <version>${project.parent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.openepcis</groupId>
+                <artifactId>openepcis-model-epcis</artifactId>
+                <version>${project.parent.version}</version>
+            </dependency>
 
-      <dependency>
-        <groupId>io.openepcis.quarkus</groupId>
-        <artifactId>quarkus-test-resources</artifactId>
-        <version>${project.parent.version}</version>
-      </dependency>
+            <dependency>
+                <groupId>io.openepcis</groupId>
+                <artifactId>openepcis-test-resources</artifactId>
+                <version>${project.parent.version}</version>
+            </dependency>
 
-      <dependency>
-        <groupId>io.openepcis.quarkus</groupId>
-        <artifactId>quarkus-openepcis-model</artifactId>
-        <version>${project.parent.version}</version>
-      </dependency>
+            <dependency>
+                <groupId>io.openepcis.quarkus</groupId>
+                <artifactId>quarkus-test-resources</artifactId>
+                <version>${project.parent.version}</version>
+            </dependency>
 
-    </dependencies>
-  </dependencyManagement>
+            <dependency>
+                <groupId>io.openepcis.quarkus</groupId>
+                <artifactId>quarkus-openepcis-model</artifactId>
+                <version>${project.parent.version}</version>
+            </dependency>
 
-  <repositories>
-    <!-- Sonatype Central snapshots -->
-    <repository>
-      <id>central-snapshots</id>
-      <url>https://central.sonatype.com/repository/maven-snapshots/</url>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-    </repository>
-  </repositories>
+        </dependencies>
+    </dependencyManagement>
+
+    <repositories>
+        <!-- Sonatype Central snapshots -->
+        <repository>
+            <id>central-snapshots</id>
+            <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+    </repositories>
 
 </project>

@@ -28,6 +28,7 @@ import io.smallrye.mutiny.Multi;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -59,30 +60,19 @@ class JsonDocumentTest {
     }
 
     @Test
-    void validateQueryDocumentWithEventTypeTest() {
-        final InputStream inputStream = Commons.getInputStream(QUERY + "QueryDocumentWithEventType.json");
+    void validateQueryDocumentTest() {
+        final InputStream inputStream = Commons.getInputStream(QUERY + "queryDocument.json");
         final Multi<ValidationError> jsonQueryErrors = validator.validate(inputStream, "application/json", EPCISDocumentType.QUERY, EPCISVersion.VERSION_2_0_0);
-        assertEquals(0, jsonQueryErrors.subscribe().asStream().toList().size());
-    }
-
-    @Test
-    void validateQueryDocumentWithEventTimeTest() {
-        final InputStream inputStream = Commons.getInputStream(QUERY + "queryDocumentWithEventTime.json");
-        final Multi<ValidationError> jsonQueryErrors = validator.validate(inputStream, "application/json", EPCISDocumentType.QUERY, EPCISVersion.VERSION_2_0_0);
-        assertEquals(0, jsonQueryErrors.subscribe().asStream().toList().size());
-    }
-
-    @Test
-    void validateQueryDocumentWithActionTest() {
-        final InputStream inputStream = Commons.getInputStream(QUERY + "queryDocumentWithAction.json");
-        final Multi<ValidationError> jsonQueryErrors = validator.validate(inputStream, "application/json", EPCISDocumentType.QUERY, EPCISVersion.VERSION_2_0_0);
-        assertEquals(0, jsonQueryErrors.subscribe().asStream().toList().size());
+        final List<ValidationError> errors = jsonQueryErrors.subscribe().asStream().toList();
+        assertEquals(0, errors.size());
     }
 
     @Test
     void validateQueryDocumentWithInValidEventTypeTest() {
         final InputStream inputStream = Commons.getInputStream(QUERY_INVALID + "QueryDocument_with_invalid_eventType.json");
         final Multi<ValidationError> jsonQueryErrors = validator.validate(inputStream, "application/json", EPCISDocumentType.QUERY, EPCISVersion.VERSION_2_0_0);
-        assertFalse(jsonQueryErrors.subscribe().asStream().toList().isEmpty());
+        final List<ValidationError> errors = jsonQueryErrors.subscribe().asStream().toList();
+        assertFalse(errors.isEmpty());
+        assertEquals(1, errors.size());
     }
 }
