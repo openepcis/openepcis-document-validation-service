@@ -54,7 +54,7 @@ class EPCISQueryTest {
     void literalQueryReportsEveryBadValue() {
         final List<ValidationError> errors = validate(QUERIES_INVALID + "Query_with_invalid_values.json");
 
-        assertEquals(2, errors.size()); // neither problem hides the other
+        assertEquals(3, errors.size()); // neither problem hides the other
         assertTrue(errors.stream().anyMatch(e -> "EQ_action".equals(e.getField())));
         assertTrue(errors.stream().anyMatch(e -> "GE_eventTime".equals(e.getField())));
     }

@@ -68,6 +68,7 @@ class XmlDocumentTest {
                 Arguments.of("Simple Query document", QUERY_PATH + "/queryDocument.xml", QUERY, VERSION_2_0_0, 0),
                 Arguments.of("Query document with multiple events", QUERY_PATH + "/QueryDocumentWithMultipleEvents.xml", QUERY, VERSION_2_0_0, 0),
                 Arguments.of("Query document with missing value", QUERY_PATH + "/Invalid/QueryDocument_with_missing_value.xml", QUERY, VERSION_2_0_0, 1),
+                Arguments.of("Query document sent to the capture path", QUERY_PATH + "/queryDocument.xml", CAPTURE, VERSION_2_0_0, 1),
 
                 // XML Queries
                 Arguments.of("Literal query with GE_ and LT_ params", QUERY_PATH + "/Queries/SimpleEventQuery.xml", QUERY, VERSION_2_0_0, 0),

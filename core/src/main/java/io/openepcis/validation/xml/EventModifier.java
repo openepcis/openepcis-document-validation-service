@@ -47,28 +47,20 @@ public class EventModifier {
                 ? (BufferedInputStream) input
                 : new BufferedInputStream(input);
         try {
+            // scanFirstTag to determine if a single event or an epcis document. Checks the first element with mark/reset, so captureInput stays readable
             final String preScan = XMLTagPreScanUtil.scanFirstTag(captureInput);
-            final PipedOutputStream pipedOutputStream = new PipedOutputStream();
-            final PipedInputStream pipe = new PipedInputStream(pipedOutputStream);
 
-            executorService.execute(
-                    () -> {
-                        try {
-                            copy(captureInput, pipedOutputStream);
-                        } catch (Exception e) {
-                            throw new SchemaValidationException("Failed to read the schema version from the input document : " + e.getMessage(), e);
-                        }
-                    });
-
-            if (preScan.contains(EPCIS.EPCIS_DOCUMENT)) {
-                return pipe;
-            } else if (EPCIS.EPCIS_EVENT_TYPES.stream().anyMatch(preScan::contains)) {
-                return addDocumentWrapper(pipe); // method to add the epcis document wrapper to single event
+            // Only for bare XML event document wrapper needs to be added rest return as is
+            if (EPCIS.EPCIS_EVENT_TYPES.stream().anyMatch(preScan::contains) && !preScan.contains(EPCIS.EPCIS_DOCUMENT) && !preScan.contains(EPCIS.EPCIS_QUERY_DOCUMENT)) {
+                // Only bareEvent so add wrapper
+                return addDocumentWrapper(captureInput);
             }
+
+            // for EPCISDocument or EPCISQueryDocument return as is
+            return captureInput;
         } catch (Exception e) {
             throw new SchemaValidationException("Exception occurred during the modification of EPCIS event : " + e.getMessage(), e);
         }
-        return captureInput;
     }
 
     public void copy(final InputStream inputStream, final OutputStream outputStream) {

@@ -23,11 +23,14 @@ import io.openepcis.constants.EPCISDocumentType;
 import io.openepcis.constants.EPCISVersion;
 import io.openepcis.resources.util.Commons;
 import io.openepcis.validation.SchemaValidator;
+import io.openepcis.validation.config.ValidationDefaults;
 import io.openepcis.validation.model.ValidationError;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -50,7 +53,10 @@ class JsonValidationMessageTest {
     private List<ValidationError> validate(final String resourcePath) {
         final InputStream document = Commons.getInputStream(resourcePath);
         assertNotNull(document, "missing shared test resource " + resourcePath);
+        return validate(document);
+    }
 
+    private List<ValidationError> validate(final InputStream document) {
         final SchemaValidator validator = new SchemaValidator(
                 mapper,
                 JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7))
@@ -287,5 +293,40 @@ class JsonValidationMessageTest {
         System.out.println("---- JSON validation messages for review ----");
         errors.forEach(error -> System.out.printf("%-22s %-46s %s%n", error.getType(), error.getLocation(), error.getMessage()));
         assertTrue(errors.size() >= 5);
+    }
+
+    // Test if the validation message limit is working and capping correctly
+    @Test
+    @DisplayName("invalid: a document with more problems than the limit is capped and informs about the limit")
+    void errorListIsCappedTest() throws Exception {
+        final int events = ValidationDefaults.MAX_REPORTED_ERRORS + 500;
+        // Generate dummy event with more errors
+        final StringBuilder document = new StringBuilder()
+                .append("{\"@context\":[\"https://ref.gs1.org/standards/epcis/epcis-context.jsonld\"],")
+                .append("\"type\":\"EPCISDocument\",\"schemaVersion\":\"2.0\",")
+                .append("\"creationDate\":\"2026-07-22T10:30:00Z\",\"epcisBody\":{\"eventList\":[");
+
+        // Generate eventList with number of events exceeding the MAX_REPORTED_ERRORS limit
+        for (int i = 0; i < events / 2; i++) {
+            if (i > 0) {
+                document.append(',');
+            }
+            // 2 clear mistake per event: bizStep is not a standard value and eventTime in wrong format
+            document.append("{\"type\":\"ObjectEvent\",\"eventTime\":\"2026-07-T06:45:00+02:00\",")
+                    .append("\"eventTimeZoneOffset\":\"+02:00\",\"action\":\"ADD\",")
+                    .append("\"bizStep\":\"transforming\",")
+                    .append("\"epcList\":[\"https://id.gs1.org/01/09521141012345/21/2017\"]}");
+        }
+        document.append("]}}");
+        final List<ValidationError> errors = validate(new ByteArrayInputStream(document.toString().getBytes(StandardCharsets.UTF_8)));
+
+        // ValidationDefaults.MAX_REPORTED_ERRORS - 1 real problems plus one entry saying the list is incomplete
+        assertEquals(ValidationDefaults.MAX_REPORTED_ERRORS, errors.size());
+        assertEquals("limitExceeded", errors.getLast().getType());
+        assertTrue(errors.getLast().getMessage().contains(String.valueOf(ValidationDefaults.MAX_REPORTED_ERRORS - 1)));
+
+        // the reported ones are the first events, in order
+        assertEquals("$.epcisBody.eventList[0].bizStep", errors.getFirst().getLocation());
+        assertEquals("$.epcisBody.eventList[0].eventTime", errors.get(1).getLocation());
     }
 }

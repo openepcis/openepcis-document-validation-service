@@ -3,8 +3,8 @@ quarkus:
     always-include: true
   http:
     limits:
-      # reject oversized bodies
-      max-body-size: ${QUARKUS_HTTP_LIMITS_MAX_BODY_SIZE:25M}
+      # reject large documents over 30MB if needed config it
+      max-body-size: ${QUARKUS_HTTP_LIMITS_MAX_BODY_SIZE:30M}
     cors:
       ~: true
       methods: GET,POST,OPTIONS
