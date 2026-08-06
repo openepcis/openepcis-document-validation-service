@@ -174,10 +174,35 @@ class XmlValidationMessageTest {
     void lineAndColumnArePresent() {
         final ValidationError error = validateCapture(INVALID + "ObjectEvent_with_unknown_element.xml").getFirst();
         // for XML the front end reads line, and location carries the column
+        System.out.println(error);
         assertNotNull(error.getLine());
-        assertNotNull(error.getLocation());
-        assertTrue(Integer.parseInt(error.getLine()) > 0);
-        assertTrue(Integer.parseInt(error.getLocation()) > 0);
+        assertNotNull(error.getColumn());
+        assertTrue(error.getLine() > 0);
+        assertTrue(error.getColumn() > 0);
+    }
+
+    @Test
+    @DisplayName("Check if proper field name and value are included in error")
+    void checkFieldAndValueTest() {
+        // Confirm field name and value is included in error
+        final ValidationError error = validateCapture(INVALID + "ObjectEvent_with_invalid_eventTime_format.xml").getFirst();
+        assertNotNull(error.getField());
+        assertNotNull(error.getValue());
+        assertNotNull(error.getLine());
+        assertNotNull(error.getColumn());
+    }
+
+    @Test
+    @DisplayName("Check if proper field , value and suggestions are included in error")
+    void checkFieldValueAndSuggestionTest() {
+        // Confirm field name and value is included in error
+        final ValidationError error = validateCapture(INVALID + "ObjectEvent_with_invalid_action.xml").getFirst();
+        assertNotNull(error.getField());
+        assertNotNull(error.getValue());
+        assertNotNull(error.getAllowedValues());
+        assertFalse(error.getAllowedValues().isEmpty());
+        assertNotNull(error.getLine());
+        assertNotNull(error.getColumn());
     }
 
     @Test
@@ -185,6 +210,55 @@ class XmlValidationMessageTest {
     void bareEventStillValidates() {
         // the wrapping path in EventModifier must keep working, this fixture reports exactly one error
         assertEquals(1, validateCapture(INVALID + "ObjectEvent_bare_event_without_action.xml").size());
+    }
+
+    // ---------------------------------------------------------------------------
+    //  The reported fields must mean the same thing for XML as they do for JSON
+    // ---------------------------------------------------------------------------
+
+    @Test
+    @DisplayName("invalid: an XML enum failure carries the field, the value and the accepted values")
+    void xmlEnumErrorCarriesFieldValueAndAllowedValues() {
+        final ValidationError error = validateCapture(INVALID + "ObjectEvent_with_invalid_action.xml").getFirst();
+
+        assertEquals("enum", error.getType());
+        // the element name only appears in the duplicate message Xerces emits, so this proves the
+        // duplicate is mined for detail instead of being discarded
+        assertEquals("action", error.getField());
+        assertEquals("CREATE", error.getValue());
+        assertEquals(List.of("ADD", "OBSERVE", "DELETE"), error.getAllowedValues());
+    }
+
+    @Test
+    @DisplayName("invalid: a near miss XML value suggests the closest accepted value")
+    void xmlNearMissSuggestsClosestValue() {
+        final ValidationError error = validateCapture(INVALID + "ObjectEvent_with_near_miss_action.xml").getFirst();
+
+        assertEquals("OBSERV", error.getValue());
+        assertEquals("OBSERVE", error.getSuggestion()); // one edit away, so worth offering
+    }
+
+    @Test
+    @DisplayName("invalid: a distant XML value offers no suggestion rather than a guess")
+    void xmlDistantValueOffersNoSuggestion() {
+        final ValidationError error = validateCapture(INVALID + "ObjectEvent_with_invalid_action.xml").getFirst();
+
+        // CREATE is four edits from DELETE, past the threshold, so suggesting anything would be noise
+        assertNull(error.getSuggestion());
+    }
+
+    @Test
+    @DisplayName("invalid: line and column are numbers and the schema rule travels in schemaPath")
+    void xmlErrorReportsRealLineAndColumn() {
+        final ValidationError error = validateCapture(INVALID + "ObjectEvent_with_invalid_action.xml").getFirst();
+
+        // line used to hold a schema URI for JSON and a line number for XML; it is now always a number
+        assertNotNull(error.getLine());
+        assertTrue(error.getLine() > 0, "line must be a real line number");
+        assertNotNull(error.getColumn());
+        // the instance path is a JSON concept, so XML leaves it empty rather than smuggling a column in
+        assertNull(error.getLocation());
+        assertEquals("cvc-enumeration-valid", error.getSchemaPath());
     }
 
     /**

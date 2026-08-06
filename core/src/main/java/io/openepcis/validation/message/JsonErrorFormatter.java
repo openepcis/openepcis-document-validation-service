@@ -248,7 +248,7 @@ public final class JsonErrorFormatter {
             final EventContext context) {
         final ValidationError error = new ValidationError();
         error.setType("required");
-        error.setLine(siblings.get(0).getSchemaLocation().toString());
+        error.setSchemaPath(siblings.getFirst().getSchemaLocation().toString());
         error.setLocation(absolute(location, context)); // full document path even while streaming
 
         final String joined = String.join(", ", fields);
@@ -272,7 +272,7 @@ public final class JsonErrorFormatter {
         final ValidationError error = new ValidationError();
 
         error.setType(primary.getType()); // unchanged, the front end may switch on it
-        error.setLine(primary.getSchemaLocation().toString()); // unchanged
+        error.setSchemaPath(primary.getSchemaLocation().toString()); // unchanged
         error.setLocation(absolute(location, context)); // full document path even while streaming
 
         // the field name is the last path segment, except for required, additionalProperties and

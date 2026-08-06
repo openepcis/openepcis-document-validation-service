@@ -108,6 +108,13 @@ class JsonValidationMessageTest {
         assertEquals(1, errors.size());
         final ValidationError error = errors.getFirst();
 
+        // line is a line number or nothing at all: JSON line numbers belong to the client, which owns
+        // the text it renders. The schema rule that rejected the value travels in schemaPath.
+        assertNull(error.getLine());
+        assertNull(error.getColumn());
+        assertNotNull(error.getSchemaPath());
+        assertTrue(error.getSchemaPath().contains("/definitions/bizStep"));
+
         assertEquals(
                 "\"transforming\" is not a standard EPCIS business step for bizStep in event 1 "
                         + "(ObjectEvent). Did you mean \"transporting\"? Use one of the 41 standard steps "

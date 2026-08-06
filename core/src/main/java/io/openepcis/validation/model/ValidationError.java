@@ -16,7 +16,10 @@
 package io.openepcis.validation.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import jakarta.xml.bind.annotation.*;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlElementWrapper;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlType;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
@@ -29,19 +32,29 @@ import java.util.regex.Pattern;
 @XmlType(
         name = "ValidationError",
         propOrder = {
-                "type", "line", "location", "message",
-                "field", "value", "eventIndex", "eventType", "suggestion", "allowedValues"
+                "type", "line", "eventIndex", "eventType", "column", "location",
+                "schemaPath", "message", "field", "value", "suggestion", "allowedValues"
         })
 public class ValidationError {
 
-    @XmlAttribute
+    @XmlElement
     private String type;
 
+    // XML only: line number in submitted document
     @XmlElement
-    private String line;
+    private Integer line;
 
+    // XML only: column number of the error
+    @XmlElement
+    private Integer column;
+
+    // JSON only: problem in document like $.epcisBody.eventList[5].bizStep
     @XmlElement
     private String location;
+
+    // Which schema rules got rejected, for diagnostics only not for the display on UI
+    @XmlElement
+    private String schemaPath;
 
     @XmlElement
     private String message;
