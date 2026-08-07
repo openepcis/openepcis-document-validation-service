@@ -15,8 +15,6 @@
  */
 package io.openepcis.validation.message;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.similarity.LevenshteinDistance;
@@ -27,7 +25,6 @@ import java.util.Locale;
 /**
  * Finds the closest allowed value to what the user typed, so we can offer a "did you mean" option in the validation error message.
  */
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ValueSuggester {
     private static final LevenshteinDistance LEVENSHTEIN = LevenshteinDistance.getDefaultInstance();
 
@@ -38,25 +35,19 @@ public class ValueSuggester {
         if (StringUtils.isBlank(wrongValue) || CollectionUtils.isEmpty(candidates)) {
             return null;
         }
-
         final String needle = wrongValue.toLowerCase(Locale.ROOT);
         final int needleLength = needle.length();
         final int maxDistance = Math.max(1, needleLength / 3);
-
         String best = null;
         int bestDistance = Integer.MAX_VALUE;
-
         for (final String candidate : candidates) {
             // Combined guard checks using short-circuit logic instead of separate continue statements
             if (StringUtils.isNotBlank(candidate) && Math.abs(needleLength - candidate.length()) <= maxDistance) {
-
                 // Execution: Reuses the stateless global engine
                 final int distance = LEVENSHTEIN.apply(needle, candidate.toLowerCase(Locale.ROOT));
-
                 if (distance < bestDistance) {
                     bestDistance = distance;
                     best = candidate;
-
                     // Performance optimization: Stop searching immediately upon an exact match
                     if (bestDistance == 0) {
                         return best;
@@ -64,7 +55,9 @@ public class ValueSuggester {
                 }
             }
         }
-
         return bestDistance <= maxDistance ? best : null;
+    }
+
+    private ValueSuggester() {
     }
 }

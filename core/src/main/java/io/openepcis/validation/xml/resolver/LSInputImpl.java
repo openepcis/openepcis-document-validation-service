@@ -15,15 +15,11 @@
  */
 package io.openepcis.validation.xml.resolver;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.w3c.dom.ls.LSInput;
 
 import java.io.InputStream;
 import java.io.Reader;
 
-@Getter
-@Setter
 public class LSInputImpl implements LSInput {
   private Reader characterStream;
   private InputStream byteStream;
@@ -37,5 +33,65 @@ public class LSInputImpl implements LSInput {
   @Override
   public boolean getCertifiedText() {
     return certifiedText;
+  }
+
+  public Reader getCharacterStream() {
+    return this.characterStream;
+  }
+
+  public InputStream getByteStream() {
+    return this.byteStream;
+  }
+
+  public String getStringData() {
+    return this.stringData;
+  }
+
+  public String getSystemId() {
+    return this.systemId;
+  }
+
+  public String getPublicId() {
+    return this.publicId;
+  }
+
+  public String getBaseURI() {
+    return this.baseURI;
+  }
+
+  public String getEncoding() {
+    return this.encoding;
+  }
+
+  public void setCharacterStream(Reader characterStream) {
+    this.characterStream = characterStream;
+  }
+
+  public void setByteStream(InputStream byteStream) {
+    this.byteStream = byteStream;
+  }
+
+  public void setStringData(String stringData) {
+    this.stringData = stringData;
+  }
+
+  public void setSystemId(String systemId) {
+    this.systemId = systemId;
+  }
+
+  public void setPublicId(String publicId) {
+    this.publicId = publicId;
+  }
+
+  public void setBaseURI(String baseURI) {
+    this.baseURI = baseURI;
+  }
+
+  public void setEncoding(String encoding) {
+    this.encoding = encoding;
+  }
+
+  public void setCertifiedText(boolean certifiedText) {
+    this.certifiedText = certifiedText;
   }
 }

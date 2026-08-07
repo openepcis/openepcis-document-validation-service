@@ -30,11 +30,6 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-
-import java.io.InputStream;
-import java.time.Duration;
-
-import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.context.ManagedExecutor;
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;
@@ -50,11 +45,13 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.resteasy.reactive.RestHeader;
 import org.jboss.resteasy.reactive.RestResponse;
 
+import java.io.InputStream;
+import java.time.Duration;
+
 @Path("/api")
 @Tag(
         name = "Event Validation",
         description = "Validate event for EPCIS XML or JSON/JSON-LD document or event list.")
-@Slf4j
 public class ValidationResource {
 
     @Inject

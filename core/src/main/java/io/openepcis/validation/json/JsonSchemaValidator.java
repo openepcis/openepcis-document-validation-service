@@ -34,7 +34,6 @@ import io.openepcis.validation.message.MessageTemplates;
 import io.openepcis.validation.model.ValidationError;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import io.smallrye.mutiny.Multi;
-import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -46,7 +45,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-@Slf4j
 @RegisterForReflection(targets = JsonSchemaFactory.class)
 public class JsonSchemaValidator implements Validator {
 

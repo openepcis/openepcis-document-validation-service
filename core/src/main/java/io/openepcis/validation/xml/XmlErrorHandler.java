@@ -19,7 +19,6 @@ import io.openepcis.validation.config.ValidationDefaults;
 import io.openepcis.validation.message.MessageTemplates;
 import io.openepcis.validation.message.ValueSuggester;
 import io.openepcis.validation.model.ValidationError;
-import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXParseException;
@@ -32,17 +31,15 @@ import java.util.regex.Pattern;
  * custom error handler while validating xml against xsd
  */
 public class XmlErrorHandler implements ErrorHandler {
-    @Getter
     private final List<ValidationError> exceptions;
     // Max number of validation errors that can be added
     private final int maxReportedErrors;
-
     // Pattern to extract the values from Xerces validation errors
-    private static final Pattern ENUM_VALUES = Pattern.compile("enumeration '\\[([^\\]]*)]'");
-    private static final Pattern FACET_VALUE = Pattern.compile("Value '([^']*)' is not");
-    private static final Pattern DATATYPE_VALUE = Pattern.compile("'([^']*)' is not a valid value for");
-    private static final Pattern VALUE_OF_ELEMENT = Pattern.compile("The value '([^']*)' of element '([^']*)' is not valid");
-    private static final Pattern ELEMENT_NAME = Pattern.compile("element '\\{?[^']*?[:\"]?([A-Za-z_][A-Za-z0-9_.\\-]*)}?'");
+    private static final Pattern ENUM_VALUES = Pattern.compile("enumeration \'\\[([^\\]]*)]\'");
+    private static final Pattern FACET_VALUE = Pattern.compile("Value \'([^\']*)\' is not");
+    private static final Pattern DATATYPE_VALUE = Pattern.compile("\'([^\']*)\' is not a valid value for");
+    private static final Pattern VALUE_OF_ELEMENT = Pattern.compile("The value \'([^\']*)\' of element \'([^\']*)\' is not valid");
+    private static final Pattern ELEMENT_NAME = Pattern.compile("element \'\\{?[^\']*?[:\"]?([A-Za-z_][A-Za-z0-9_.\\-]*)}?\'");
 
     public XmlErrorHandler() {
         this(ValidationDefaults.MAX_REPORTED_ERRORS);
@@ -73,16 +70,13 @@ public class XmlErrorHandler implements ErrorHandler {
         if (this.exceptions.size() >= maxReportedErrors) {
             return; // the marker is already the last entry, nothing further is recorded
         }
-
         if (this.exceptions.size() == maxReportedErrors - 1) {
             this.exceptions.add(limitExceeded(maxReportedErrors - 1)); // same wording as the JSON path
             return;
         }
-
         final String raw = e.getMessage() == null ? "" : e.getMessage(); // never NPE on a null message
         final Integer line = e.getLineNumber() > 0 ? e.getLineNumber() : null;
         final Integer column = e.getColumnNumber() > 0 ? e.getColumnNumber() : null;
-
         // Xerces reports one mistake twice, for example "not facet-valid" then "value of element is not valid".
         // Same line and column is the same mistake, so keep the first, more specific one.
         for (final ValidationError existing : this.exceptions) {
@@ -92,12 +86,11 @@ public class XmlErrorHandler implements ErrorHandler {
                 return;
             }
         }
-
         final ValidationError errorFormat = new ValidationError();
         errorFormat.setType(typeOf(raw)); // a real type, instead of always reporting "required"
         errorFormat.setLine(line); // unchanged, the front end uses this for XML highlighting
         errorFormat.setColumn(column); // unchanged
-        errorFormat.setSchemaPath(schemaRuleOf(raw));  //the cvc code, for diagnostics
+        errorFormat.setSchemaPath(schemaRuleOf(raw)); //the cvc code, for diagnostics
         errorFormat.setMessage(errorFormat.filterErrorMessage(raw));
         enrich(errorFormat, raw); // extract the values and field names from the raw message
         this.exceptions.add(errorFormat);
@@ -130,11 +123,8 @@ public class XmlErrorHandler implements ErrorHandler {
     private ValidationError limitExceeded(final int limit) {
         final ValidationError error = new ValidationError();
         error.setType("limitExceeded");
-        error.setMessage(MessageTemplates.hasKeyword("limit.exceeded")
-                ? MessageTemplates.render(MessageTemplates.keyword("limit.exceeded"), Map.of("limit", String.valueOf(limit)))
-                : "Validation stopped after " + limit + " problems. This document has more.");
+        error.setMessage(MessageTemplates.hasKeyword("limit.exceeded") ? MessageTemplates.render(MessageTemplates.keyword("limit.exceeded"), Map.of("limit", String.valueOf(limit))) : "Validation stopped after " + limit + " problems. This document has more.");
         return error;
-
     }
 
     // Get the values matching the error model to populate in errors from the Xerces validation errors
@@ -147,7 +137,6 @@ public class XmlErrorHandler implements ErrorHandler {
             // 'not-a-date' is not a valid value for
             error.setValue(firstGroup(DATATYPE_VALUE, raw));
         }
-
         final Matcher valueOfElement = VALUE_OF_ELEMENT.matcher(raw);
         if (valueOfElement.find()) {
             if (StringUtils.isBlank(error.getValue())) {
@@ -160,30 +149,27 @@ public class XmlErrorHandler implements ErrorHandler {
         if (StringUtils.isBlank(error.getField())) {
             error.setField(firstGroup(ELEMENT_NAME, raw));
         }
-
         if (error.getAllowedValues() == null) {
             final String list = firstGroup(ENUM_VALUES, raw);
             if (list != null) {
-                final List<String> allowed = Arrays.stream(list.split(","))
-                        .map(String::trim)
-                        .filter(value -> !value.isEmpty())
-                        .toList();
+                final List<String> allowed = Arrays.stream(list.split(",")).map(String::trim).filter(value -> !value.isEmpty()).toList();
                 if (!allowed.isEmpty()) {
                     error.setAllowedValues(allowed);
                 }
             }
         }
-
         // only worth suggesting once both halves are known, and never overwrite an existing one
         if (error.getSuggestion() == null && error.getValue() != null && error.getAllowedValues() != null) {
             error.setSuggestion(ValueSuggester.closest(error.getValue(), error.getAllowedValues()));
         }
     }
 
-
     private String firstGroup(final Pattern pattern, final String raw) {
         final Matcher matcher = pattern.matcher(raw);
         return matcher.find() ? matcher.group(1) : null;
     }
 
+    public List<ValidationError> getExceptions() {
+        return this.exceptions;
+    }
 }

@@ -15,17 +15,14 @@
  */
 package io.openepcis.validation.config;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-
 /**
  * Configuration for validation settings
- **/
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+ */
 public class ValidationDefaults {
-
     //  Most problems reported per document; the last slot says the limit was reached.
     public static final String MAX_REPORTED_ERRORS_TEXT = "1000";
     public static final int MAX_REPORTED_ERRORS = Integer.parseInt(MAX_REPORTED_ERRORS_TEXT);
 
+    private ValidationDefaults() {
+    }
 }
