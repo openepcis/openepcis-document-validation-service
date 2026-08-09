@@ -18,6 +18,7 @@ package io.openepcis.validation.xml;
 import io.openepcis.constants.EPCIS;
 import io.openepcis.constants.EPCISVersion;
 import io.openepcis.validation.exception.SchemaValidationException;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.xml.stream.*;
 import java.io.*;
@@ -135,18 +136,33 @@ public class EventModifier {
                 int event = reader.next();
 
                 if (event == XMLStreamConstants.START_ELEMENT) {
-                    writer.writeStartElement(reader.getLocalName());
+                    // Get namespace of the element Null or empty means direct event <TransformationEvent> (not <TransformationEvent xmlns:example="http://ns.example.com/epcis/">
+                    final String elementNs = reader.getNamespaceURI();
 
-                    // Add all the attributes associated with xml tag
-                    for (int i = 0; i < reader.getAttributeCount(); i++) {
-                        writer.writeAttribute(reader.getAttributeLocalName(i), reader.getAttributeValue(i));
+                    // if empty directly add unqualified name
+                    if (StringUtils.isBlank(elementNs)) {
+                        writer.writeStartElement(reader.getLocalName());
+                    } else {
+                        final String prefix = reader.getPrefix();
+                        writer.writeStartElement(prefix == null ? "" : prefix, reader.getLocalName(), elementNs);
                     }
 
                     // Add all the namespaces associated with xml tag
                     for (int i = 0; i < reader.getNamespaceCount(); i++) {
-                        writer.writeNamespace(reader.getNamespacePrefix(i), reader.getNamespaceURI(i));
+                        final String nsPrefix = reader.getNamespacePrefix(i);
+                        writer.writeNamespace(nsPrefix == null ? "" : nsPrefix, reader.getNamespaceURI(i));
                     }
 
+                    // Add all the attributes associated with xml tag
+                    for (int i = 0; i < reader.getAttributeCount(); i++) {
+                        final String attrNs = reader.getAttributeNamespace(i);
+
+                        if (StringUtils.isEmpty(attrNs)) {
+                            writer.writeAttribute(reader.getAttributeLocalName(i), reader.getAttributeValue(i));
+                        } else {
+                            writer.writeAttribute(reader.getAttributePrefix(i), attrNs, reader.getAttributeLocalName(i), reader.getAttributeValue(i));
+                        }
+                    }
                 } else if (event == XMLStreamConstants.END_ELEMENT) {
                     writer.writeEndElement();
                 } else if (event == XMLStreamConstants.CHARACTERS) {
