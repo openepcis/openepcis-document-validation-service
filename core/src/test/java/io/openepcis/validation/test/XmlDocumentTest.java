@@ -37,6 +37,7 @@ import static io.openepcis.constants.EPCISDocumentType.QUERY;
 import static io.openepcis.constants.EPCISVersion.VERSION_1_2_0;
 import static io.openepcis.constants.EPCISVersion.VERSION_2_0_0;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class XmlDocumentTest {
     private final ObjectMapper mapper = new ObjectMapper();
@@ -56,6 +57,9 @@ class XmlDocumentTest {
     @MethodSource("validationTestCases")
     void validateDocuments(String testName, String resource, EPCISDocumentType documentType, EPCISVersion version, int expectedErrors) {
         final InputStream inputStream = Commons.getInputStream(resource);
+        // a fixture that is not on the classpath comes back as null and only surfaces deep inside
+        // EventModifier as an NPE, so name the missing file here instead
+        assertNotNull(inputStream, "missing shared test resource " + resource);
         final Multi<ValidationError> validationErrorMulti = validator.validate(inputStream, "application/xml", documentType, version);
         var errors = validationErrorMulti.subscribe().asStream().toList();
         assertEquals(expectedErrors, errors.size());

@@ -32,6 +32,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class JsonDocumentTest {
 
@@ -45,23 +46,33 @@ class JsonDocumentTest {
             new SchemaValidator(mapper, JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7))
                     .jsonNodeReader(JsonNodeReader.builder().jsonMapper(mapper).build()).build());
 
+    /**
+     * A fixture that is not on the classpath comes back as null, which the validator only reports
+     * much later as "Stream closed". Naming the missing file here keeps that diagnosable.
+     */
+    private InputStream open(final String resourcePath) {
+        final InputStream document = Commons.getInputStream(resourcePath);
+        assertNotNull(document, "missing shared test resource " + resourcePath);
+        return document;
+    }
+
     @Test
     void validateCaptureDocumentTest() {
-        final InputStream inputStream = Commons.getInputStream(INVALID + "Combination_of_events_with_missing_mandatory_fields.json");
+        final InputStream inputStream = open(INVALID + "Combination_of_events_with_missing_mandatory_fields.json");
         final Multi<ValidationError> jsonCaptureErrors = validator.validate(inputStream, "application/json", EPCISDocumentType.CAPTURE, EPCISVersion.VERSION_2_0_0);
         assertFalse(jsonCaptureErrors.subscribe().asStream().toList().isEmpty());
     }
 
     @Test
     void validateCaptureDocumentWithCertificationTest() {
-        final InputStream inputStream = Commons.getInputStream(INVALID + "ObjectEvent_with_invalid_certificationInfo.json");
+        final InputStream inputStream = open(INVALID + "ObjectEvent_with_invalid_certificationInfo.json");
         final Multi<ValidationError> jsonCaptureErrors = validator.validate(inputStream, "application/json", EPCISDocumentType.CAPTURE, EPCISVersion.VERSION_2_0_0);
         assertFalse(jsonCaptureErrors.subscribe().asStream().toList().isEmpty());
     }
 
     @Test
     void validateQueryDocumentTest() {
-        final InputStream inputStream = Commons.getInputStream(QUERY + "queryDocument.json");
+        final InputStream inputStream = open(QUERY + "queryDocument.json");
         final Multi<ValidationError> jsonQueryErrors = validator.validate(inputStream, "application/json", EPCISDocumentType.QUERY, EPCISVersion.VERSION_2_0_0);
         final List<ValidationError> errors = jsonQueryErrors.subscribe().asStream().toList();
         assertEquals(0, errors.size());
@@ -69,7 +80,7 @@ class JsonDocumentTest {
 
     @Test
     void validateQueryDocumentWithInValidEventTypeTest() {
-        final InputStream inputStream = Commons.getInputStream(QUERY_INVALID + "QueryDocument_with_invalid_eventType.json");
+        final InputStream inputStream = open(QUERY_INVALID + "QueryDocument_with_invalid_eventType.json");
         final Multi<ValidationError> jsonQueryErrors = validator.validate(inputStream, "application/json", EPCISDocumentType.QUERY, EPCISVersion.VERSION_2_0_0);
         final List<ValidationError> errors = jsonQueryErrors.subscribe().asStream().toList();
         assertFalse(errors.isEmpty());
