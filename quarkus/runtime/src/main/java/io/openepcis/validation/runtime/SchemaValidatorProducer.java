@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2024 benelog GmbH & Co. KG
+ * Copyright 2022-2026 benelog GmbH & Co. KG
  *
  *     Licensed under the Apache License, Version 2.0 (the "License");
  *     you may not use this file except in compliance with the License.
@@ -15,34 +15,42 @@
  */
 package io.openepcis.validation.runtime;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SpecVersion;
+import com.networknt.schema.serialization.JsonNodeReader;
 import io.openepcis.validation.SchemaValidator;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Initialized;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.enterprise.inject.Produces;
+import jakarta.inject.Inject;
 
 @RegisterForReflection
 @ApplicationScoped
 public class SchemaValidatorProducer {
-  @Produces
-  @RequestScoped
-  public SchemaValidator schemaValidator(final JsonSchemaFactory factory) {
-    return new SchemaValidator(mapper, factory);
-  }
 
-  private final ObjectMapper mapper;
+    @Inject
+    ValidationConfig validationConfig;
 
-  public SchemaValidatorProducer(final ObjectMapper mapper) {
-    this.mapper = mapper;
-  }
+    @Produces
+    @RequestScoped
+    public SchemaValidator schemaValidator(final JsonSchemaFactory factory) {
+        return new SchemaValidator(mapper, factory, validationConfig.maxReportedErrors());
+    }
 
-  @Produces
-  public JsonSchemaFactory jsonSchemaFactory() {
-    return JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7))
-        .jsonMapper(mapper)
-        .build();
-  }
+    private final ObjectMapper mapper;
+
+    public SchemaValidatorProducer(final ObjectMapper mapper) {
+        this.mapper = mapper;
+    }
+
+    @Produces
+    public JsonSchemaFactory jsonSchemaFactory() {
+        return JsonSchemaFactory.builder(JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7))
+                .jsonNodeReader(JsonNodeReader.builder().jsonMapper(mapper).build())
+                .build();
+    }
 }

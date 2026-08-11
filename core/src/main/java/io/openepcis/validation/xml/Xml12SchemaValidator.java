@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2024 benelog GmbH & Co. KG
+ * Copyright 2022-2026 benelog GmbH & Co. KG
  *
  *     Licensed under the Apache License, Version 2.0 (the "License");
  *     you may not use this file except in compliance with the License.
@@ -15,17 +15,27 @@
  */
 package io.openepcis.validation.xml;
 
+import io.openepcis.validation.config.ValidationDefaults;
 import io.openepcis.validation.xml.resolver.ClasspathResourceResolver;
+
 import javax.xml.XMLConstants;
 import javax.xml.validation.SchemaFactory;
 
 public class Xml12SchemaValidator extends AbstractXmlSchemaValidator {
-  public Xml12SchemaValidator() {
-    SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-    schemaFactory.setResourceResolver(new ClasspathResourceResolver("xsd/1_2_0"));
-    this.schemaFactory = schemaFactory;
-    this.captureXmlSchema = loadSchema("/xsd/1_2_0/EPCglobal-epcis-1_2.xsd");
-    this.queryXmlSchema = loadSchema("/xsd/1_2_0/EPCglobal-epcis-query-1_2.xsd");
-    this.xsdErrorHandler = new XmlErrorHandler();
-  }
+
+
+    public Xml12SchemaValidator() {
+        // keep the existing callers and tests unchanged
+        this(ValidationDefaults.MAX_REPORTED_ERRORS); // keeps existing callers and tests unchanged
+    }
+
+
+    public Xml12SchemaValidator(final int maxReportedErrors) {
+        final SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        schemaFactory.setResourceResolver(new ClasspathResourceResolver("xsd/1_2_0"));
+        this.schemaFactory = schemaFactory;
+        this.captureXmlSchema = loadSchema("/xsd/1_2_0/EPCglobal-epcis-1_2.xsd");
+        this.queryXmlSchema = loadSchema("/xsd/1_2_0/EPCglobal-epcis-query-1_2.xsd");
+        this.maxReportedErrors = maxReportedErrors;
+    }
 }

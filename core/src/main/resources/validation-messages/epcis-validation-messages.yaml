@@ -1,0 +1,344 @@
+#
+# Copyright 2022-2024 benelog GmbH & Co. KG
+#
+#     Licensed under the Apache License, Version 2.0 (the "License");
+#     you may not use this file except in compliance with the License.
+#     You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+#     Unless required by applicable law or agreed to in writing, software
+#     distributed under the License is distributed on an "AS IS" BASIS,
+#     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#     See the License for the specific language governing permissions and
+#     limitations under the License.
+#
+
+# =============================================================================
+#  EPCIS VALIDATION MESSAGE CATALOGUE
+# =============================================================================
+#
+#  Every user facing validation message lives in this file. No message text
+#  belongs in Java code. Adding or rewording a message is a change here only.
+#
+#  -----------------------------------------------------------------------------
+#  HOW A MESSAGE IS CHOSEN  (three layers, most specific wins)
+#  -----------------------------------------------------------------------------
+#
+#   Layer 1  schemaLocations   Keyed by JSON Pointer into the EPCIS schema.
+#                              The pointer is walked upwards until an entry
+#                              matches, so one entry covers every event type and
+#                              every occurrence in the document.
+#
+#                              For a wrong bizStep the engine reports
+#                                #/definitions/bizStep/anyOf/1/enum
+#                              and the lookup tries, in order:
+#                                #/definitions/bizStep/anyOf/1/enum.enum
+#                                #/definitions/bizStep/anyOf/1/enum
+#                                #/definitions/bizStep/anyOf/1.enum
+#                                #/definitions/bizStep/anyOf/1
+#                                #/definitions/bizStep/anyOf.enum
+#                                #/definitions/bizStep/anyOf
+#                                #/definitions/bizStep.enum
+#                                #/definitions/bizStep          <-- matches here
+#
+#   Layer 2  keywords          Keyed by JSON Schema keyword. The safety net for
+#                              anything not named in layer 1.
+#
+#   Layer 3  (not in this file) Whatever the library itself says, taken from
+#                              ValidationMessage.getError(). Reached only when
+#                              layers 1 and 2 both miss, so a message is never
+#                              lost and an unknown keyword can never break a
+#                              response.
+#
+#  -----------------------------------------------------------------------------
+#  PLACEHOLDERS
+#  -----------------------------------------------------------------------------
+#
+#   {field}          name of the offending field, for example bizStep
+#   {value}          the value the user actually sent
+#   {where}          friendly position, for example "event 6 (TransformationEvent)"
+#   {suggestion}     " Did you mean ...?" when a close match exists, else empty
+#   {allowedCount}   how many values the standard allows at this place
+#   {allowedSample}  a short sample of the allowed values, never the whole list
+#   {expected}       the type the schema wants          (keyword: type)
+#   {actual}         the type or count actually supplied (keywords: type, min/maxItems)
+#   {limit}          the boundary the schema sets        (keywords: min*, max*)
+#   {fields}         a comma separated field list        (required.alternatives)
+#
+#  Unknown placeholders render as empty and the surrounding gap is collapsed,
+#  so a template can safely mention a placeholder that a keyword does not supply.
+#
+#  -----------------------------------------------------------------------------
+#  RULES WHEN EDITING
+#  -----------------------------------------------------------------------------
+#
+#   1. Quote every key in schemaLocations. A JSON Pointer starts with "#", and
+#      an unquoted "#" would be read as a YAML comment. This is exactly why the
+#      catalogue is YAML and not a .properties file, where such a key is
+#      silently swallowed with no error at all.
+#   2. Wrap message text in single quotes so that ":" and "{" stay literal.
+#      Write a literal single quote as two single quotes.
+#   3. Never paste the full list of allowed values into a message. Use
+#      {allowedSample} and let the API return the complete list separately in
+#      the allowedValues field, so the UI can reveal it on demand.
+#   4. Keep the wording free of schema jargon. The reader is a supply chain user,
+#      not a JSON Schema author.
+#   5. The full 41 value CBV list, the 33 dispositions and so on are read from
+#      the schema at runtime. Never copy such a list into this file.
+#
+# =============================================================================
+
+
+# =============================================================================
+#  LAYER 1  ...  PER SCHEMA LOCATION
+# =============================================================================
+schemaLocations:
+
+  # ---------------------------------------------------------------------------
+  #  CBV vocabularies
+  #
+  #  Each of these is declared in the schema as anyOf(custom URI, standard
+  #  value). A plain word that is not a standard value therefore fails both
+  #  branches, which is why one mistake used to arrive as two errors. One entry
+  #  here replaces both of them with a single sentence that explains the choice.
+  # ---------------------------------------------------------------------------
+
+  "#/definitions/bizStep": '"{value}" is not a standard EPCIS business step for {field} in {where}.{suggestion} Use one of the {allowedCount} standard steps ({allowedSample}), or, for a step of your own, a full web address such as https://example.com/bizStep/{value}.'
+
+  # Also covers persistentDisposition, whose set and unset entries reuse this definition.
+  "#/definitions/disposition": '"{value}" is not a standard EPCIS disposition for {field} in {where}.{suggestion} Use one of the {allowedCount} standard dispositions ({allowedSample}), or, for a disposition of your own, a full web address such as https://example.com/disposition/{value}.'
+
+  "#/definitions/bizTransaction-type": '"{value}" is not a standard EPCIS business transaction type for {field} in {where}.{suggestion} Use one of the {allowedCount} standard types ({allowedSample}), or a full web address of your own.'
+
+  "#/definitions/source-dest-type": '"{value}" is not a standard EPCIS source or destination type for {field} in {where}.{suggestion} Use one of the {allowedCount} standard types ({allowedSample}), or a full web address of your own.'
+
+  "#/definitions/error-reason": '"{value}" is not a standard EPCIS error reason for {field} in {where}.{suggestion} Use one of the {allowedCount} standard reasons ({allowedSample}), or a full web address of your own.'
+
+  "#/definitions/measurementType": '"{value}" is not a standard EPCIS measurement type for {field} in {where}.{suggestion} Use one of the {allowedCount} standard types ({allowedSample}), or a full web address of your own.'
+
+  "#/definitions/sensorAlertType": '"{value}" is not a standard EPCIS sensor alert type for {field} in {where}.{suggestion} Use one of the {allowedCount} standard types ({allowedSample}), or a full web address of your own.'
+
+  "#/definitions/component": '"{value}" is not a standard EPCIS address component for {field} in {where}.{suggestion} Use one of the {allowedCount} standard components ({allowedSample}), or a full web address of your own.'
+
+  "#/definitions/eventType": '"{value}" is not a standard EPCIS event type for {field} in {where}.{suggestion} Use one of the {allowedCount} standard types ({allowedSample}), or a full web address of your own.'
+
+  "#/definitions/common-event-properties": '"{value}" is not a value EPCIS recognises for {field} in {where}.{suggestion} Use one of the {allowedCount} standard values ({allowedSample}), or a full web address of your own.'
+
+  # ---------------------------------------------------------------------------
+  #  The custom vocabulary branch
+  #
+  #  Shared by every vocabulary above as the "or a URI of your own" alternative.
+  #  Grouping normally leads with the enum branch, so this wording appears only
+  #  when the enum branch did not report anything.
+  # ---------------------------------------------------------------------------
+
+  "#/definitions/vocab-other-uri": '{field} in {where} must be either a standard EPCIS value or a full web address of your own, for example https://example.com/vocabulary/{value}. It cannot be a plain word. You sent "{value}".'
+
+  "#/definitions/vocab-uri": '{field} in {where} must be a recognised EPCIS name or a full web address. You sent "{value}".'
+
+  # ---------------------------------------------------------------------------
+  #  Fixed value fields
+  #
+  #  action is a plain enum of exactly three values with no custom URI option,
+  #  so the wording here deliberately does not offer one.
+  # ---------------------------------------------------------------------------
+
+  "#/definitions/action": '"{value}" is not a valid action for {where}. An action must be exactly one of {allowedSample}, in capital letters.'
+
+  # ---------------------------------------------------------------------------
+  #  Identifiers
+  # ---------------------------------------------------------------------------
+
+  "#/definitions/uri": '{field} in {where} must be a full web address or a URN. Examples: https://id.gs1.org/01/09520123456788 or urn:epc:id:sgtin:0614141.107346.2017. You sent "{value}".'
+
+  "#/definitions/id": '{field} in {where} must be a full identifier, for example https://id.gs1.org/414/4012345000054 or urn:epc:id:sgln:0614141.00001.0. You sent "{value}".'
+
+  # ---------------------------------------------------------------------------
+  #  Dates and times
+  #
+  #  One shared definition backs eventTime, recordTime, creationDate,
+  #  declarationTime and the sensor metadata times, so the wording stays generic
+  #  and lets {field} name the one that failed.
+  # ---------------------------------------------------------------------------
+
+  "#/definitions/time": '{field} in {where} must be a date and time that includes a time zone. Example: 2026-07-22T09:20:00+02:00. You sent "{value}".'
+
+  "#/definitions/Event/properties/eventTimeZoneOffset": 'eventTimeZoneOffset in {where} must be a time zone offset such as +02:00 or -05:30. You sent "{value}".'
+
+  # ---------------------------------------------------------------------------
+  #  Numbers
+  # ---------------------------------------------------------------------------
+
+  "#/definitions/decimal": '{field} in {where} must be a number written without quotation marks, for example 19.3 rather than "19.3". You sent "{value}".'
+
+
+# =============================================================================
+#  LAYER 2  ...  PER JSON SCHEMA KEYWORD
+#
+#  Reached when no schema location above matches. Wording stays general here,
+#  because the same keyword can fail anywhere in the document.
+# =============================================================================
+keywords:
+
+  # --- Missing, unknown and misnamed fields ----------------------------------
+
+  required: '{field} is required but missing in {where}.'
+
+  # Synthetic key, produced when sibling schema branches each demand a different
+  # field. Instead of several "X is required" errors the user gets one choice.
+  required.alternatives: '{where} must contain at least one of these fields: {fields}.'
+
+  # Synthetic key, produced when one position is missing several fields that are all
+  # unconditionally required. Every field is named, so nothing is hidden from the user.
+  required.multiple: 'These required fields are missing in {where}: {fields}.'
+
+  additionalProperties: '{field} is not a field EPCIS recognises in {where}. Remove it, or move it to a namespace of your own such as ex:{field}.'
+
+  propertyNames: '"{field}" is not a valid field name in {where}. A field of your own needs a namespace prefix, for example ex:{field}.'
+
+  notAllowed: '{field} is not allowed in {where}. Remove it.'
+
+  dependentRequired: '{field} in {where} may only be used together with the field it depends on.'
+
+  dependencies: '{field} in {where} is missing another field that it depends on.'
+
+  # --- Wrong value -----------------------------------------------------------
+
+  enum: '"{value}" is not an accepted value for {field} in {where}.{suggestion} Accepted values: {allowedSample}.'
+
+  const: '{field} in {where} must be exactly "{limit}". You sent "{value}".'
+
+  pattern: '"{value}" is not correctly formatted for {field} in {where}.'
+
+  type: '{field} in {where} must be {expected}, but {actual} was supplied.'
+
+  unionType: '{field} in {where} must be {expected}, but {actual} was supplied.'
+
+  # --- Formats ---------------------------------------------------------------
+
+  format: '{field} in {where} is not in the format EPCIS expects. You sent "{value}".'
+  format.uri: '{field} in {where} must be a full web address or URN, for example https://id.gs1.org/01/09520123456788. You sent "{value}".'
+  format.uri-reference: '{field} in {where} must be a web address. You sent "{value}".'
+  format.date-time: '{field} in {where} must be a date and time that includes a time zone. Example: 2026-07-22T09:20:00+02:00. You sent "{value}".'
+  format.date: '{field} in {where} must be a date such as 2026-07-22. You sent "{value}".'
+  format.time: '{field} in {where} must be a time such as 09:20:00. You sent "{value}".'
+  format.duration: '{field} in {where} must be a length of time such as PT30M for thirty minutes. You sent "{value}".'
+  format.uuid: '{field} in {where} must be a UUID such as 3f2504e0-4f89-11d3-9a0c-0305e82c3301. You sent "{value}".'
+  format.email: '{field} in {where} must be an email address. You sent "{value}".'
+  format.hostname: '{field} in {where} must be a host name such as example.com. You sent "{value}".'
+  format.regex: '{field} in {where} must be a valid regular expression. You sent "{value}".'
+  format.unknown: '{field} in {where} uses a format EPCIS does not know how to check.'
+
+  # --- Sizes and counts ------------------------------------------------------
+
+  minItems: '{field} in {where} needs at least {limit} entries, but has {actual}.'
+  maxItems: '{field} in {where} allows at most {limit} entries, but has {actual}.'
+  uniqueItems: '{field} in {where} lists the same entry more than once. Remove the duplicates.'
+  contains: '{field} in {where} must contain at least one entry of the expected kind.'
+  contains.min: '{field} in {where} must contain at least {limit} entries of the expected kind.'
+  contains.max: '{field} in {where} must contain at most {limit} entries of the expected kind.'
+  minLength: '{field} in {where} must be at least {limit} characters long. You sent "{value}".'
+  maxLength: '{field} in {where} must be at most {limit} characters long.'
+  minProperties: '{field} in {where} must have at least {limit} fields.'
+  maxProperties: '{field} in {where} must have at most {limit} fields.'
+
+  # --- Numeric ranges --------------------------------------------------------
+
+  minimum: '{field} in {where} must be {limit} or greater. You sent "{value}".'
+  maximum: '{field} in {where} must be {limit} or less. You sent "{value}".'
+  exclusiveMinimum: '{field} in {where} must be greater than {limit}. You sent "{value}".'
+  exclusiveMaximum: '{field} in {where} must be less than {limit}. You sent "{value}".'
+  multipleOf: '{field} in {where} must be a multiple of {limit}. You sent "{value}".'
+
+  # --- Structure -------------------------------------------------------------
+  #
+  #  These fire when a value matches none of the shapes EPCIS allows. They are
+  #  the least helpful messages in the catalogue by nature, because the schema
+  #  itself cannot know which shape was intended. Grouping usually surfaces a
+  #  more precise error from inside the failing branch instead.
+
+  anyOf: '{field} in {where} does not match any of the shapes EPCIS allows here. Check the fields of this {field} against the EPCIS standard.'
+  oneOf: '{field} in {where} matches more than one of the shapes EPCIS allows, or none of them. Check the fields of this {field} against the EPCIS standard.'
+  allOf: '{field} in {where} does not meet all of the rules for this part of an EPCIS document.'
+  not: '{field} in {where} uses a value that is not allowed here.'
+
+  unevaluatedProperties: '{field} is not a field EPCIS recognises in {where}. Remove it, or move it to a namespace of your own such as ex:{field}.'
+  unevaluatedItems: '{where} contains an entry at position {limit} that EPCIS does not expect here.'
+
+  # --- Rarely seen -----------------------------------------------------------
+
+  readOnly: '{field} in {where} is set by the repository and cannot be supplied.'
+  writeOnly: '{field} in {where} cannot be returned in a response.'
+  contentEncoding: '{field} in {where} is not encoded the way EPCIS expects.'
+  contentMediaType: '{field} in {where} is not of the media type EPCIS expects.'
+  false: '{field} is not allowed in {where}.'
+  id: '"{value}" is not a valid identifier for {field} in {where}.'
+
+  # Appended as the final entry when the list was capped
+  limit.exceeded: 'Validation stopped after {limit} problems. This document has more, so the list above is not complete. Fix these first, then validate again.'
+
+  # Emitted when the parser produced nothing at all, so an unreadable document is never reported clean.
+  document.unreadable: 'The document could not be read. Check that @context is present and appears before epcisBody.'
+
+# =============================================================================
+#  REUSABLE SENTENCE PIECES
+#
+#  Leading spaces matter here and YAML keeps them, which is why these are
+#  single quoted. A template embeds {suggestion} with no space of its own.
+# =============================================================================
+fragments:
+
+  # Appended only when a close match to the wrong value was found.
+  suggestionHint: ' Did you mean "{best}"?'
+
+  # Appended when one position really does have several unrelated problems.
+  reasonMore: ' Also: {reasons}'
+
+  # Fills {where}. eventIndex is zero based internally and shown from 1.
+  whereDocument: 'the document'
+  whereEvent: 'event {number}'
+  whereEventTyped: 'event {number} ({type})'
+
+
+# =============================================================================
+#  XML  ...  XSD VALIDATION RULE CODES
+#
+#  Xerces prefixes each message with the identifier of the W3C XML Schema
+#  validation rule that failed, for example "cvc-enumeration-valid". Those names
+#  come from the specification itself, so they are stable to key on. They are
+#  mapped here to the type field of the response, which previously reported
+#  "required" for every XML error regardless of what actually went wrong.
+#
+#  The longest matching prefix wins, so cvc-complex-type.2.4 is preferred over
+#  cvc-complex-type when both are present.
+# =============================================================================
+xsdTypes:
+  cvc-enumeration-valid: 'enum'
+  cvc-datatype-valid: 'format'
+  cvc-pattern-valid: 'pattern'
+  cvc-maxLength-valid: 'maxLength'
+  cvc-minLength-valid: 'minLength'
+  cvc-length-valid: 'length'
+  cvc-minInclusive-valid: 'minimum'
+  cvc-maxInclusive-valid: 'maximum'
+  cvc-minExclusive-valid: 'exclusiveMinimum'
+  cvc-maxExclusive-valid: 'exclusiveMaximum'
+  cvc-totalDigits-valid: 'format'
+  cvc-fractionDigits-valid: 'format'
+  cvc-complex-type.2.1: 'unexpectedContent'
+  cvc-complex-type.2.2: 'unexpectedContent'
+  cvc-complex-type.2.3: 'unexpectedContent'
+  cvc-complex-type.2.4: 'unexpectedElement'
+  cvc-complex-type.3: 'attribute'
+  cvc-complex-type.4: 'required'
+  cvc-complex-type: 'invalidContent'
+  cvc-type.3.1.1: 'attribute'
+  cvc-type.3.1.3: 'format'
+  cvc-attribute: 'attribute'
+  cvc-elt.1: 'unknownElement'
+  cvc-elt.3: 'nilNotAllowed'
+  cvc-elt.4: 'invalidType'
+  cvc-identity-constraint: 'duplicateKey'
+  cvc-au: 'attribute'
+  src-resolve: 'schemaResolution'

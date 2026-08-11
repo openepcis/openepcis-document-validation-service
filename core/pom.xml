@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!--
 
-    Copyright 2022-2024 benelog GmbH & Co. KG
+    Copyright 2022-2026 benelog GmbH & Co. KG
 
         Licensed under the Apache License, Version 2.0 (the "License");
         you may not use this file except in compliance with the License.
@@ -55,27 +55,29 @@
     </scm>
 
     <dependencies>
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-core</artifactId>
-        </dependency>
-
+        <!-- EPCIS constants -->
         <dependency>
             <groupId>io.openepcis</groupId>
             <artifactId>openepcis-epcis-constants</artifactId>
             <scope>compile</scope>
         </dependency>
 
-        <!--
+        <!-- Shared EPCIS documents, valid and invalid, used for testing -->
         <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-buffer</artifactId>
+            <groupId>io.openepcis</groupId>
+            <artifactId>openepcis-test-resources</artifactId>
+            <scope>test</scope>
         </dependency>
-        -->
-        <!-- lombok Dependency -->
+
+        <!-- Streams EPCIS JSON/JSON-LD document by one event one at a time -->
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
+            <groupId>io.openepcis</groupId>
+            <artifactId>openepcis-reactive-event-publisher</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-core</artifactId>
         </dependency>
 
         <!-- Dependency for validating the JSON Schema -->
@@ -92,6 +94,10 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
         </dependency>
 
         <dependency>
