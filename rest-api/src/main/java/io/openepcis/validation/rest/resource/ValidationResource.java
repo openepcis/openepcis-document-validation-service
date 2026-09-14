@@ -20,7 +20,9 @@ import io.openepcis.constants.EPCISDocumentType;
 import io.openepcis.constants.EPCISVersion;
 import io.openepcis.model.epcis.EPCISDocument;
 import io.openepcis.model.rest.ProblemResponseBody;
+import io.openepcis.validation.EPCISVersionSupport;
 import io.openepcis.validation.SchemaValidator;
+import io.openepcis.validation.exception.UnsupportedEPCISVersionException;
 import io.openepcis.validation.model.ValidationError;
 import io.openepcis.validation.model.xml.ValidationResult;
 import io.smallrye.mutiny.Uni;
@@ -47,6 +49,7 @@ import org.jboss.resteasy.reactive.RestResponse;
 
 import java.io.InputStream;
 import java.time.Duration;
+import java.util.Optional;
 
 @Path("/api")
 @Tag(
@@ -169,15 +172,12 @@ public class ValidationResource {
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/ld+json"})
     public Uni<RestResponse<?>> validateEvents(
             @Parameter(
-                    name = "GS1-EPCIS-Version",
-                    description = "The EPCIS version",
-                    examples = {
-                            @ExampleObject(name = "EPCIS 2.0", value = "2.0.0"),
-                            @ExampleObject(name = "EPCIS 1.2", value = "1.2.0")
-                    },
+                    name = EPCISVersionSupport.VERSION_HEADER,
+                    description = "EPCIS version of the payload. JSON/JSON-LD (2.0.1 and 2.0.0) and XML (2.0.1, 2.0.0 and 1.2.0) ",
+                    schema = @Schema(type = SchemaType.STRING, enumeration = {"2.0.1", "2.0.0", "1.2.0"}, defaultValue = "2.0.1"),
                     in = ParameterIn.HEADER)
-            @RestHeader(value = "GS1-EPCIS-Version")
-            @DefaultValue("2.0.0")
+            @RestHeader(value = EPCISVersionSupport.VERSION_HEADER)
+            @DefaultValue("2.0.1")
             String epcisVersion,
 
             @QueryParam("epcisDocumentSchema")
@@ -190,10 +190,16 @@ public class ValidationResource {
         final String contentType = httpHeaders.getHeaderString(HttpHeaders.CONTENT_TYPE);
         final String accept = httpHeaders.getHeaderString(HttpHeaders.ACCEPT);
         final EPCISDocumentType documentType = EPCISDocumentType.fromString(epcisDocumentSchema);
-        final EPCISVersion documentVersion = EPCISVersion.fromString(epcisVersion).orElse(EPCISVersion.VERSION_2_0_0);
+        final Optional<EPCISVersion> documentVersion = EPCISVersionSupport.parse(epcisVersion);
+
+        if (documentVersion.isEmpty()) {
+            // refuse any unparsable header before proceeding
+            return Uni.createFrom().item(createErrorResponse(
+                    new UnsupportedEPCISVersionException(epcisVersion, contentType, EPCISVersionSupport.listFor(contentType))));
+        }
 
         return schemaValidator
-                .validate(body, contentType, documentType, documentVersion)
+                .validate(body, contentType, documentType, documentVersion.get())
                 .runSubscriptionOn(managedExecutor)
                 .collect().asList()
                 .ifNoItem().after(validationTimeout).fail()
@@ -212,11 +218,16 @@ public class ValidationResource {
     }
 
     private RestResponse<ProblemResponseBody> createErrorResponse(Throwable throwable) {
+        // unsupported version and mediaType should return 415 status code rest 500
+        final Response.Status status = throwable instanceof UnsupportedOperationException
+                ? Response.Status.UNSUPPORTED_MEDIA_TYPE
+                : Response.Status.INTERNAL_SERVER_ERROR;
+
         final ProblemResponseBody responseBody = new ProblemResponseBody();
         responseBody.setType(throwable.getClass().getSimpleName());
-        responseBody.title(Response.Status.UNSUPPORTED_MEDIA_TYPE.getReasonPhrase());
-        responseBody.setStatus(Response.Status.UNSUPPORTED_MEDIA_TYPE.getStatusCode());
+        responseBody.title(status.getReasonPhrase());
+        responseBody.setStatus(status.getStatusCode());
         responseBody.setDetail(throwable.getMessage());
-        return RestResponse.status(Response.Status.UNSUPPORTED_MEDIA_TYPE, responseBody);
+        return RestResponse.status(status, responseBody);
     }
 }

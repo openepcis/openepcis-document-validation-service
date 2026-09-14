@@ -34,8 +34,7 @@ import java.util.stream.Stream;
 
 import static io.openepcis.constants.EPCISDocumentType.CAPTURE;
 import static io.openepcis.constants.EPCISDocumentType.QUERY;
-import static io.openepcis.constants.EPCISVersion.VERSION_1_2_0;
-import static io.openepcis.constants.EPCISVersion.VERSION_2_0_0;
+import static io.openepcis.constants.EPCISVersion.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -75,6 +74,14 @@ class XmlDocumentTest {
                 Arguments.of("Query document with missing value", QUERY_PATH + "/Invalid/QueryDocument_with_missing_value.xml", QUERY, VERSION_2_0_0, 1),
                 Arguments.of("Query document sent to the capture path", QUERY_PATH + "/queryDocument.xml", CAPTURE, VERSION_2_0_0, 1),
                 Arguments.of("EPCIS bare event with no error", CAPTURE_PATH_EVENT + "/TransactionEvent.xml", CAPTURE, VERSION_2_0_0, 0),
+
+                // XML 2.0.1 validations
+                Arguments.of("Capture document with bare event for version 2.0.1", INVALID_PATH + "/ObjectEvent_with_invalid_action.xml", CAPTURE, VERSION_2_0_1, 1),
+                Arguments.of("Complete EPCIS capture document for version 2.0.1", CAPTURE_PATH + "/Combination_of_different_event.xml", CAPTURE, VERSION_2_0_1, 0),
+                Arguments.of("Simple Query document for version 2.0.1", QUERY_PATH + "/queryDocument.xml", QUERY, VERSION_2_0_1, 0),
+                Arguments.of("Query document with multiple events for version 2.0.1", QUERY_PATH + "/QueryDocumentWithMultipleEvents.xml", QUERY, VERSION_2_0_1, 0),
+                Arguments.of("Query document sent to the capture path for version 2.0.1", QUERY_PATH + "/queryDocument.xml", CAPTURE, VERSION_2_0_1, 1),
+                Arguments.of("EPCIS bare event with no error for version 2.0.1", CAPTURE_PATH_EVENT + "/TransactionEvent.xml", CAPTURE, VERSION_2_0_1, 0),
 
                 // XML Queries
                 Arguments.of("Literal query with GE_ and LT_ params", QUERY_PATH + "/Queries/SimpleEventQuery.xml", QUERY, VERSION_2_0_0, 0),

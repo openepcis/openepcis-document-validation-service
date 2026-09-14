@@ -18,6 +18,7 @@ package io.openepcis.validation.servlet;
 import io.openepcis.constants.EPCISDocumentType;
 import io.openepcis.constants.EPCISVersion;
 import io.openepcis.model.rest.servlet.ServletSupport;
+import io.openepcis.validation.EPCISVersionSupport;
 import io.openepcis.validation.SchemaValidator;
 import io.openepcis.validation.model.ValidationError;
 import io.openepcis.validation.model.xml.ValidationResult;
@@ -28,6 +29,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.InternalServerErrorException;
+import jakarta.ws.rs.NotSupportedException;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.xml.bind.JAXBException;
@@ -67,7 +69,7 @@ public class ValidationServlet extends HttpServlet {
     private static final Duration VALIDATION_TIMEOUT = Duration.ofSeconds(30);
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
         final Optional<String> accept = servletSupport.accept(PRODUCES, req, resp);
         if (accept.isEmpty()) return;
@@ -75,15 +77,25 @@ public class ValidationServlet extends HttpServlet {
         final Optional<String> contentType = servletSupport.contentType(CONSUMES, accept.get(), req, resp);
         if (contentType.isEmpty()) return;
 
-        final String epcisVersion = Optional.ofNullable(req.getHeader("GS1-EPCIS-Version")).orElse("2.0.0");
+        final String epcisVersion = req.getHeader(EPCISVersionSupport.VERSION_HEADER);
         final String epcisDocumentSchema = req.getParameter("epcisDocumentSchema");
+        final Optional<EPCISVersion> documentVersion = EPCISVersionSupport.parse(epcisVersion);
+
+        if (documentVersion.isEmpty()) {
+            // NotSupportedException is JAX-RS 415, the same status the reactive front end returns
+            servletSupport.writeException(
+                    new NotSupportedException("EPCIS version '" + epcisVersion + "' is not supported for "
+                            + contentType.get() + ". Supported versions for this format: "
+                            + EPCISVersionSupport.listFor(contentType.get()) + "."),
+                    accept.get(), resp);
+            return;
+        }
 
         try {
             final EPCISDocumentType documentType = EPCISDocumentType.fromString(epcisDocumentSchema);
-            final EPCISVersion documentVersion = EPCISVersion.fromString(epcisVersion).orElse(EPCISVersion.VERSION_2_0_0);
 
             final List<ValidationError> validationErrors =
-                    schemaValidator.validate(req.getInputStream(), contentType.get(), documentType, documentVersion)
+                    schemaValidator.validate(req.getInputStream(), contentType.get(), documentType, documentVersion.get())
                             .collect()
                             .asList()
                             .await()
@@ -108,6 +120,8 @@ public class ValidationServlet extends HttpServlet {
             } else {
                 servletSupport.writeJson(resp, validationErrors);
             }
+        } catch (UnsupportedOperationException e) {
+            servletSupport.writeException(new NotSupportedException(e.getMessage()), accept.get(), resp);
         } catch (Exception e) {
             servletSupport.writeException(new InternalServerErrorException(), accept.get(), resp);
         }

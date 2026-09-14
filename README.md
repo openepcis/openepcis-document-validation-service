@@ -45,7 +45,7 @@ Send it a document:
 ```bash
 curl -X POST 'http://localhost:9000/api/events/validate' \
   -H 'Content-Type: application/json' \
-  -H 'GS1-EPCIS-Version: 2.0.0' \
+  -H 'GS1-EPCIS-Version: 2.0.1' \
   --data-binary @my-epcis-document.json
 ```
 
@@ -59,7 +59,7 @@ An empty `200` means the document is valid. A `400` returns the list of problems
 |-----------------------------|---------------------------------------------------------------------------|
 | Request body                | the EPCIS document                                                        |
 | `Content-Type`              | `application/json`, `application/ld+json` or `application/xml`            |
-| `GS1-EPCIS-Version` header  | `2.0.0` (default) or `1.2.0`                                              |
+| `GS1-EPCIS-Version` header  | `2.0.1` (default) or `2.0.0`; XML also accepts `1.2.0`                    |
 | `epcisDocumentSchema` query | `capture` (default) or `query`                                            |
 | `Accept`                    | `application/json` for a JSON array, `application/xml` for a JAXB wrapper |
 

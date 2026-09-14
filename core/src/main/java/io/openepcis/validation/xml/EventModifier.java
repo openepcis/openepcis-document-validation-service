@@ -98,6 +98,7 @@ public class EventModifier {
 
                             writer.writeStartElement(EPCIS.EPCIS_NAMESPACE_PREFIX, EPCIS.EPCIS_DOCUMENT, EPCIS.EPCIS_2_0_XMLNS);
                             writer.writeAttribute(EPCIS.CREATION_DATE, Instant.now().toString());
+                            // "2.0" for 2.0.1 too: schemaVersion is xsd:decimal, "2.0.1" would be invalid
                             writer.writeAttribute(EPCIS.SCHEMA_VERSION, EPCISVersion.VERSION_2_0_0.getSchemaVersion());
                             writer.writeNamespace(EPCIS.EPCIS_NAMESPACE_PREFIX, EPCIS.EPCIS_2_0_XMLNS);
                             writer.writeNamespace(EPCIS.XSI, EPCIS.XML_SCHEMA_INSTANCE);

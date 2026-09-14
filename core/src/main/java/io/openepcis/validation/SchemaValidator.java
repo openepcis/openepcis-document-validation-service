@@ -21,14 +21,17 @@ import io.openepcis.constants.EPCIS;
 import io.openepcis.constants.EPCISDocumentType;
 import io.openepcis.constants.EPCISVersion;
 import io.openepcis.validation.config.ValidationDefaults;
+import io.openepcis.validation.exception.UnsupportedEPCISVersionException;
 import io.openepcis.validation.json.JsonSchemaValidator;
 import io.openepcis.validation.model.ValidationError;
 import io.openepcis.validation.xml.Xml12SchemaValidator;
 import io.openepcis.validation.xml.Xml20SchemaValidator;
 import io.smallrye.mutiny.Multi;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.InputStream;
 import java.util.Locale;
+import java.util.Optional;
 
 public class SchemaValidator {
 
@@ -58,34 +61,58 @@ public class SchemaValidator {
                                            final String mediaType,
                                            final EPCISDocumentType epcisDocumentSchema,
                                            final EPCISVersion epcisVersion) {
-        Validator validator = getValidator(mediaType, epcisVersion);
 
-        if (epcisDocumentSchema.equals(EPCISDocumentType.CAPTURE)) {
-            return validator.validateAgainstCaptureSchema(epcisInputData);
+        final Optional<Validator> validator = findValidator(mediaType, epcisVersion);
+
+        if (validator.isEmpty()) {
+            // if there is no validator then throw the exception
+            return Multi.createFrom().failure(() -> unsupported(mediaType, epcisVersion));
         }
 
-        if (epcisDocumentSchema.equals(EPCISDocumentType.QUERY)) {
-            return validator.validateAgainstQuerySchema(epcisInputData);
+        if (EPCISDocumentType.CAPTURE.equals(epcisDocumentSchema)) {
+            return validator.get().validateAgainstCaptureSchema(epcisInputData);
         }
 
-        throw new UnsupportedOperationException("Unsupported schema type : " + epcisDocumentSchema);
+        if (EPCISDocumentType.QUERY.equals(epcisDocumentSchema)) {
+            return validator.get().validateAgainstQuerySchema(epcisInputData);
+        }
+
+
+        return Multi.createFrom().failure(
+                () -> new UnsupportedOperationException("Unsupported schema type : " + epcisDocumentSchema));
     }
 
-    private Validator getValidator(final String mediaType, EPCISVersion epcisVersion) {
-        if (mediaType.toLowerCase(Locale.ROOT).contains(EPCIS.JSON_FORMAT)) {
-            return jsonSchemaValidator;
+    private Optional<Validator> findValidator(final String mediaType, final EPCISVersion epcisVersion) {
+        final String format = StringUtils.isBlank(mediaType) ? "" : mediaType.toLowerCase(Locale.ROOT);
+
+        // For JSON input return supported validator
+        if (format.contains(EPCIS.JSON_FORMAT)) {
+            // JSON is valid only for 2.x there is no JSON in 1.2
+            return EPCISVersionSupport.VERSION_2_0_FAMILY.contains(epcisVersion)
+                    ? Optional.of(jsonSchemaValidator)
+                    : Optional.empty();
         }
 
-        if (mediaType.toLowerCase(Locale.ROOT).contains(EPCIS.XML_FORMAT)) {
-            if (EPCISVersion.VERSION_2_0_0.getSchemaVersion().equals(epcisVersion.getSchemaVersion())) {
-                return xml20SchemaValidator;
-            }
+        // For XML input return supported validator
+        if (format.contains(EPCIS.XML_FORMAT)) {
+            if (EPCISVersionSupport.VERSION_2_0_FAMILY.contains(epcisVersion))
+                return Optional.of(xml20SchemaValidator);
 
-            if (EPCISVersion.VERSION_1_2_0.getSchemaVersion().equals(epcisVersion.getSchemaVersion())) {
-                return xml12SchemaValidator;
-            }
+            return EPCISVersion.VERSION_1_2_0 == epcisVersion
+                    ? Optional.of(xml12SchemaValidator)
+                    : Optional.empty();
         }
 
-        throw new UnsupportedOperationException("Unsupported media type : " + mediaType);
+        return Optional.empty();
+    }
+
+    private RuntimeException unsupported(final String mediaType, final EPCISVersion epcisVersion) {
+        // For any unknown format
+        if (EPCISVersionSupport.supportedFor(mediaType).isEmpty()) {
+            return new UnsupportedOperationException("Unsupported media type : " + mediaType);
+        }
+
+        // for a known format with version we cannot validate (version problem)
+        return new UnsupportedEPCISVersionException(epcisVersion.getVersion(), mediaType, EPCISVersionSupport.listFor(mediaType));
     }
 }
