@@ -27,8 +27,12 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Locale;
 
 public abstract class AbstractXmlSchemaValidator implements Validator {
+
+    // Xerces property that selects the language of its validation messages
+    private static final String XERCES_LOCALE_PROPERTY = "http://apache.org/xml/properties/locale";
 
     protected int maxReportedErrors = ValidationDefaults.MAX_REPORTED_ERRORS;
     protected Schema captureXmlSchema;
@@ -43,7 +47,7 @@ public abstract class AbstractXmlSchemaValidator implements Validator {
                         multiEmitter -> {
                             try {
                                 final InputStream inputEvent = eventModifier.modifyEvent(captureInput);
-                                final javax.xml.validation.Validator validator = captureXmlSchema.newValidator();
+                                final javax.xml.validation.Validator validator = newValidator(captureXmlSchema);
                                 // Fresh handler to avoid reused validation polluting with old errors
                                 final XmlErrorHandler errorHandler = new XmlErrorHandler(maxReportedErrors);
 
@@ -63,7 +67,7 @@ public abstract class AbstractXmlSchemaValidator implements Validator {
         return Multi.createFrom()
                 .emitter(
                         multiEmitter -> {
-                            final javax.xml.validation.Validator validator = queryXmlSchema.newValidator();
+                            final javax.xml.validation.Validator validator = newValidator(queryXmlSchema);
                             // Fresh handler to avoid reused validation polluting with old errors
                             final XmlErrorHandler errorHandler = new XmlErrorHandler(maxReportedErrors);
                             validator.setErrorHandler(errorHandler);
@@ -76,6 +80,24 @@ public abstract class AbstractXmlSchemaValidator implements Validator {
                                 multiEmitter.fail(new SchemaValidationException("Failed to validate the Query XML document against the XSD : " + e.getMessage(), e));
                             }
                         });
+    }
+
+    /**
+     * Creates a validator whose messages are always in English.
+     * The JDK's Xerces localises its messages to the default JVM locale, and {@link XmlErrorHandler} mines the
+     * English wording for field, value and allowed values, so a German or French server would otherwise report
+     * errors without those details.
+     * Locale.ROOT is deliberate: Xerces ships English only as the base bundle, and a ResourceBundle lookup for
+     * Locale.ENGLISH falls back to the JVM default locale before the base bundle, so it would still be German.
+     */
+    protected javax.xml.validation.Validator newValidator(final Schema schema) {
+        final javax.xml.validation.Validator validator = schema.newValidator();
+        try {
+            validator.setProperty(XERCES_LOCALE_PROPERTY, Locale.ROOT);
+        } catch (SAXException e) {
+            // another schema implementation without this property, keep its default messages
+        }
+        return validator;
     }
 
     protected Schema loadSchema(final String name) {
