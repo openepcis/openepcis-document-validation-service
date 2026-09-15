@@ -41,6 +41,19 @@ jobs:
           -P gitlab-maven
           clean verify
 
+      - name: Publish the 999-SNAPSHOT to the GitLab package registry
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          GITLAB_MAVEN_URL: ${{ secrets.GITLAB_MAVEN_URL }}
+          GITLAB_MAVEN_USERNAME: ${{ secrets.GITLAB_DEPLOY_USER }}
+          GITLAB_MAVEN_TOKEN: ${{ secrets.GITLAB_DEPLOY_TOKEN }}
+        run: >
+          mvn -s .mvn/settings.xml
+          --batch-mode --no-transfer-progress
+          -P gitlab-maven
+          -DskipTests
+          deploy
+
       - name: Upload test reports if the build failed
         if: failure()
         uses: actions/upload-artifact@v4
