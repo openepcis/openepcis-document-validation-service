@@ -154,6 +154,14 @@ schemaLocations:
 
   "#/definitions/id": '{field} in {where} must be a full identifier, for example https://id.gs1.org/414/4012345000054 or urn:epc:id:sgln:0614141.00001.0. You sent "{value}".'
 
+  "#/definitions/epcList.uniqueItems": '{field} in {where} lists the same serialized identifier more than once. Every EPC in {field} must be unique within the event; remove the duplicate entries.'
+
+  "#/definitions/uom": '{field} in {where} must be a 2- or 3-character uppercase UN/CEFACT unit code such as EA, KGM, LTR or MTR. You sent "{value}".'
+
+  "#/definitions/version": '{field} in {where} must be a version number made of digits and dots, for example 2.0. You sent "{value}".'
+
+  "#/definitions/hexBinary": '{field} in {where} must be a hexadecimal value using only digits 0-9 and letters A-F. You sent "{value}".'
+
   # ---------------------------------------------------------------------------
   #  Dates and times
   #
