@@ -26,13 +26,12 @@ import io.openepcis.validation.SchemaValidator;
 import io.openepcis.validation.model.ValidationError;
 import io.smallrye.mutiny.Multi;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import java.io.InputStream;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class JsonDocumentTest {
 
@@ -85,5 +84,26 @@ class JsonDocumentTest {
         final List<ValidationError> errors = jsonQueryErrors.subscribe().asStream().toList();
         assertFalse(errors.isEmpty());
         assertEquals(1, errors.size());
+    }
+
+    private static final List<String> NEW_INVALID_DOCUMENTS = List.of(
+            "ObjectEvent_with_duplicate_epc_in_epcList.json",
+            "ObjectEvent_with_lowercase_uom.json",
+            "ObjectEvent_with_uom_as_number.json",
+            "EPCISDocument_with_invalid_schemaVersion.json",
+            "EPCISDocument_with_schemaVersion_as_number.json",
+            "ObjectEvent_with_invalid_hexBinaryValue.json");
+
+
+    @Test
+    void newInvalidDocumentsReportOneErrorEach() {
+        // assertAll runs every file and reports all failures together, not just the first
+        assertAll(NEW_INVALID_DOCUMENTS.stream().map(fileName -> (Executable) () -> {
+            final List<ValidationError> errors = validator
+                    .validate(open(INVALID + fileName), "application/json", EPCISDocumentType.CAPTURE, EPCISVersion.VERSION_2_0_1)
+                    .subscribe().asStream().toList();
+            // each document carries exactly one defect, so exactly one error is expected
+            assertEquals(1, errors.size(), fileName + " -> " + errors);
+        }));
     }
 }
