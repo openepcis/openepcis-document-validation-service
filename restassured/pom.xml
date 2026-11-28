@@ -23,7 +23,7 @@
     <parent>
         <groupId>io.openepcis</groupId>
         <artifactId>openepcis-document-validation-parent</artifactId>
-        <version>999-SNAPSHOT</version>
+        <version>0.9.6</version>
     </parent>
     <groupId>io.openepcis</groupId>
     <artifactId>openepcis-document-validation-restassured</artifactId>
